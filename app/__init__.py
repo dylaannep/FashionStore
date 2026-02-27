@@ -43,7 +43,9 @@ def create_app(config_name='default'):
     
     # Importar modelos para que SQLAlchemy los reconozca
     with app.app_context():
-        from app.models import user_model, product_model, category_model, order_model
+        # TODO: Importar tus modelos aquí a medida que los crees
+        # from app.models import rol_model, usuario_model, categoria_model, etc.
+        pass
         
         # Crear tablas si no existen (opcional, comentar si usas migraciones)
         # db.create_all()
@@ -67,19 +69,19 @@ def register_blueprints(app):
     Args:
         app (Flask): Instancia de la aplicación
     """
-    from app.routes.auth_routes import auth_bp
-    from app.routes.product_routes import product_bp
-    from app.routes.admin_routes import admin_bp
+    # TODO: Importar y registrar tus blueprints aquí a medida que los crees
+    # Ejemplo:
+    # from app.routes.auth_routes import auth_bp
+    # app.register_blueprint(auth_bp, url_prefix='/auth')
     
-    # Registrar blueprints con sus prefijos
-    app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(product_bp, url_prefix='/products')
-    app.register_blueprint(admin_bp, url_prefix='/admin')
-    
-    # Ruta principal
+    # Ruta principal temporal
     @app.route('/')
     def index():
-        return "Bienvenido a FashionStore"
+        return {
+            'message': 'Bienvenido a FashionStore API',
+            'status': 'active',
+            'version': '1.0.0'
+        }
 
 
 def register_error_handlers(app):
@@ -129,7 +131,9 @@ def load_user(user_id):
         user_id: ID del usuario
         
     Returns:
-        User: Objeto usuario o None
+        Usuario: Objeto usuario o None
     """
-    from app.models.user_model import User
-    return User.query.get(int(user_id))
+    # TODO: Implementar cuando tengas el modelo Usuario creado
+    # from app.models.usuario_model import Usuario
+    # return Usuario.query.get(int(user_id))
+    return None

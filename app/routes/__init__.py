@@ -1,8 +1,12 @@
 """
 Módulo de rutas (Capa de Presentación)
+Aquí se importarán todos los blueprints creados
 """
-from app.routes.auth_routes import auth_bp
-from app.routes.product_routes import product_bp
-from app.routes.admin_routes import admin_bp
 
-__all__ = ['auth_bp', 'product_bp', 'admin_bp']
+# TODO: Importar blueprints aquí a medida que se vayan creando
+# Ejemplo:
+# from app.routes.auth_routes import auth_bp
+# from app.routes.producto_routes import producto_bp
+# etc.
+
+__all__ = []

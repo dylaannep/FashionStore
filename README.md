@@ -123,50 +123,47 @@ FashionStore/
 
 ## 📚 Modelos de Datos
 
-### User
-- Gestión de usuarios y autenticación
-- Roles: usuario regular y administrador
+### Estructura de Base de Datos (15 Tablas)
 
-### Category
-- Categorías de productos
-- Relación uno a muchos con productos
+La base de datos está diseñada con las siguientes tablas:
 
-### Product
-- Productos de la tienda
-- Stock, precios, descuentos
+**Gestión de Usuarios:**
+- Roles
+- Usuarios
+- UsuarioRoles (tabla intermedia)
 
-### Order / OrderItem
-- Órdenes de compra
-- Estados: pending, confirmed, processing, shipped, delivered, cancelled
+**Catálogo de Productos:**
+- Categorias
+- SubCategorias
+- Colores
+- Tallas
+- Productos
+- ProductoVariantes
+
+**Control de Inventario:**
+- Inventario
+- MovimientosInventario
+
+**Gestión de Pedidos:**
+- EstadosPedido
+- MetodosPago
+- Pedidos
+- DetallePedido
+
+Ver archivo `ESTRUCTURA_BD.md` para más detalles sobre cada tabla.
 
 ## 🔐 Endpoints Principales
 
-### Autenticación (`/auth`)
-- `POST /auth/register` - Registro de usuarios
-- `POST /auth/login` - Inicio de sesión
-- `POST /auth/logout` - Cerrar sesión
-- `GET /auth/profile` - Perfil del usuario
-- `PUT /auth/profile` - Actualizar perfil
-- `POST /auth/change-password` - Cambiar contraseña
+### Próximamente
+Los endpoints se irán implementando a medida que se desarrollen los modelos y servicios.
 
-### Productos (`/products`)
-- `GET /products/` - Listar productos
-- `GET /products/<id>` - Detalle de producto
-- `GET /products/featured` - Productos destacados
-- `GET /products/categories` - Listar categorías
-- `GET /products/cart` - Ver carrito
-- `POST /products/cart/add` - Agregar al carrito
-- `POST /products/checkout` - Realizar compra
-- `GET /products/orders` - Mis órdenes
-
-### Administración (`/admin`)
-- `GET /admin/dashboard` - Dashboard con estadísticas
-- `POST /admin/products` - Crear producto
-- `PUT /admin/products/<id>` - Actualizar producto
-- `DELETE /admin/products/<id>` - Eliminar producto
-- `GET /admin/orders` - Todas las órdenes
-- `PUT /admin/orders/<id>/status` - Actualizar estado de orden
-- `GET /admin/users` - Listar usuarios
+**Planificados:**
+- Autenticación y Usuarios
+- Gestión de Productos
+- Catálogos (Categorías, Colores, Tallas)
+- Gestión de Inventario
+- Pedidos y Compras
+- Panel de Administración
 
 ## 🎨 Paradigma Orientado a Objetos
 
