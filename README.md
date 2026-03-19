@@ -16,6 +16,17 @@ El proyecto sigue el patrón de arquitectura por capas:
 - SQL Server
 - ODBC Driver 17 for SQL Server
 
+## ✅ Estado del Proyecto
+
+El proyecto está configurado y listo para comenzar el desarrollo:
+
+- ✅ Estructura de carpetas creada
+- ✅ Base de datos SQL Server con 15 tablas diseñada y documentada
+- ✅ Configuración de Flask con Application Factory
+- ✅ Conexión a SQL Server probada y funcional
+- ✅ Dependencias instaladas y documentadas
+- ⏳ **Siguiente paso**: Crear modelos de SQLAlchemy basados en las tablas existentes
+
 ## 🚀 Instalación
 
 ### Para nuevos colaboradores:
@@ -71,7 +82,19 @@ DB_PASSWORD=tu_password
    - Ejecutar el script: `database/script_bd.sql` en SQL Server
    - Esto creará la base de datos `TiendaRopaDB` con las 15 tablas
 
-6. **Verificar instalación**
+6. **Probar conexión a la base de datos**
+```bash
+python test_connection.py
+```
+
+Si la conexión es exitosa, verás:
+- ✅ Información del servidor SQL Server
+- ✅ Lista de tablas en la base de datos
+- ✅ Mensaje de conexión exitosa
+
+Si hay errores, el script te dará sugerencias para solucionarlos.
+
+7. **Ejecutar la aplicación**
 ```bash
 python run.py
 ```
@@ -258,7 +281,128 @@ La base de datos está diseñada con las siguientes tablas:
 
 Ver archivo `ESTRUCTURA_BD.md` para más detalles sobre cada tabla.
 
-## 🔐 Endpoints Principales
+## �️ Guía para Comenzar a Desarrollar Modelos
+
+### Paso 1: Entender la tabla en la base de datos
+Consulta `database/script_bd.sql` y `ESTRUCTURA_BD.md` para ver:
+- Columnas y tipos de datos
+- Claves primarias y foráneas
+- Restricciones y valores por defecto
+
+### Paso 2: Crear el modelo en SQLAlchemy
+Ejemplo para la tabla `Roles`:
+
+```python
+# app/models/rol_model.py
+from app import db
+from datetime import datetime
+
+class Rol(db.Model):
+    __tablename__ = 'Roles'
+    
+    id_rol = db.Column(db.Integer, primary_key=True)
+    nombre_rol = db.Column(db.String(50), nullable=False, unique=True)
+    descripcion = db.Column(db.String(255))
+    activo = db.Column(db.Boolean, default=True, nullable=False)
+    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relación con UsuarioRoles (uno a muchos)
+    usuario_roles = db.relationship('UsuarioRol', backref='rol', lazy=True)
+    
+    def __repr__(self):
+        return f'<Rol {self.nombre_rol}>'
+```
+
+### Paso 3: Registrar el modelo en `app/models/__init__.py`
+```python
+from app.models.rol_model import Rol
+
+__all__ = ['Rol']
+```
+
+### Paso 4: Verificar el modelo
+```bash
+# Iniciar shell de Flask
+flask shell
+
+# Probar el modelo
+>>> from app.models import Rol
+>>> print(Rol.__table__)
+```
+
+### Paso 5: Crear servicio para lógica de negocio
+```python
+# app/services/rol_service.py
+from app.models import Rol
+from app import db
+
+class RolService:
+    @staticmethod
+    def get_all_roles():
+        return Rol.query.filter_by(activo=True).all()
+    
+    @staticmethod
+    def get_rol_by_id(id_rol):
+        return Rol.query.get(id_rol)
+    
+    @staticmethod
+    def create_rol(nombre, descripcion=None):
+        nuevo_rol = Rol(nombre_rol=nombre, descripcion=descripcion)
+        db.session.add(nuevo_rol)
+        db.session.commit()
+        return nuevo_rol
+```
+
+### Paso 6: Crear rutas (endpoints)
+```python
+# app/routes/rol_routes.py
+from flask import Blueprint, jsonify
+from app.services.rol_service import RolService
+
+rol_bp = Blueprint('roles', __name__, url_prefix='/api/roles')
+
+@rol_bp.route('/', methods=['GET'])
+def get_roles():
+    roles = RolService.get_all_roles()
+    return jsonify([{
+        'id': r.id_rol,
+        'nombre': r.nombre_rol,
+        'descripcion': r.descripcion
+    } for r in roles])
+```
+
+### Paso 7: Registrar Blueprint en `app/__init__.py`
+```python
+from app.routes.rol_routes import rol_bp
+app.register_blueprint(rol_bp)
+```
+
+### 📌 Orden sugerido para crear modelos:
+
+1. **Tablas base** (sin dependencias):
+   - `Roles`
+   - `Categorias`
+   - `Colores`
+   - `Tallas`
+   - `EstadosPedido`
+   - `MetodosPago`
+
+2. **Tablas con una dependencia**:
+   - `Usuarios` (depende de Roles)
+   - `SubCategorias` (depende de Categorias)
+   - `Productos` (depende de Categorias, SubCategorias)
+
+3. **Tablas con múltiples dependencias**:
+   - `UsuarioRoles` (depende de Usuarios, Roles)
+   - `ProductoVariantes` (depende de Productos, Colores, Tallas)
+   - `Inventario` (depende de ProductoVariantes)
+   - `Pedidos` (depende de Usuarios, EstadosPedido, MetodosPago)
+
+4. **Tablas de detalle**:
+   - `MovimientosInventario` (depende de Inventario, Usuarios)
+   - `DetallePedido` (depende de Pedidos, ProductoVariantes)
+
+## �🔐 Endpoints Principales
 
 ### Próximamente
 Los endpoints se irán implementando a medida que se desarrollen los modelos y servicios.

@@ -3,6 +3,10 @@ Configuración de la aplicación FashionStore
 """
 import os
 from urllib.parse import quote_plus
+from dotenv import load_dotenv
+
+# Cargar variables de entorno desde .env
+load_dotenv()
 
 
 class Config:
@@ -25,13 +29,14 @@ class Config:
         f"DATABASE={DB_NAME};"
         f"UID={DB_USERNAME};"
         f"PWD={DB_PASSWORD};"
-        f"TrustServerCertificate=yes;"
+        "TrustServerCertificate=yes;"
+        "Encrypt=no;"
     )
     
     # SQLAlchemy URI
     SQLALCHEMY_DATABASE_URI = f"mssql+pyodbc:///?odbc_connect={quote_plus(connection_string)}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ECHO = False  # Cambiar a True para debug SQL
+    SQLALCHEMY_ECHO = True  # Cambiado a True para debug SQL
     
     # Configuración de Flask-Mail
     MAIL_SERVER = os.environ.get('MAIL_SERVER') or 'smtp.gmail.com'
