@@ -43,9 +43,10 @@ def create_app(config_name='default'):
     
     # Importar modelos para que SQLAlchemy los reconozca
     with app.app_context():
-        # TODO: Importar tus modelos aquí a medida que los crees
-        # from app.models import rol_model, usuario_model, categoria_model, etc.
-        pass
+        # Importar modelos
+        from app.models import Rol
+        # TODO: Importar más modelos a medida que los crees
+        # from app.models import Usuario, Categoria, etc.
         
         # Crear tablas si no existen (opcional, comentar si usas migraciones)
         # db.create_all()
