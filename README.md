@@ -12,9 +12,21 @@ El proyecto sigue el patrón de arquitectura por capas:
 
 ## 📋 Requisitos Previos
 
-- Python 3.8+
+- **Python 3.14+** (Proyecto desarrollado con Python 3.14.3)
+  - ⚠️ Python 3.13 y anteriores pueden tener problemas de compatibilidad
 - SQL Server
 - ODBC Driver 17 for SQL Server
+
+### 🐍 Verificar tu versión de Python:
+
+```bash
+python3 --version
+# Debe ser 3.14 o superior
+```
+
+Si necesitas instalar Python 3.14:
+- **Mac**: `brew install python@3.14`
+- **Windows**: Descargar de [python.org](https://www.python.org/downloads/)
 
 ## ✅ Estado del Proyecto
 
@@ -40,15 +52,18 @@ cd FashionStore
 2. **Crear entorno virtual** (IMPORTANTE: cada colaborador crea el suyo)
 ```bash
 # En Mac/Linux
-python -m venv venv
+python3.14 -m venv venv
 source venv/bin/activate
 
-# En Windows
+# En Windows  
 python -m venv venv
 venv\Scripts\activate
 ```
 
-> ⚠️ **NOTA**: El entorno virtual (`venv/`) NO se sube al repositorio. Cada colaborador debe crear el suyo localmente.
+> ⚠️ **NOTA IMPORTANTE**: 
+> - El entorno virtual (`venv/`) NO se sube al repositorio. Cada colaborador debe crear el suyo localmente.
+> - **Python 3.14+ es requerido**. Verifica tu versión con: `python3 --version`
+> - Si tienes otra versión de Python, instala Python 3.14 primero
 
 3. **Instalar dependencias**
 ```bash
@@ -60,7 +75,8 @@ Esto instalará automáticamente todas las dependencias necesarias con las versi
 - Flask-SQLAlchemy 3.1.1
 - Flask-Login 0.6.3
 - Flask-Mail 0.9.1
-- pyodbc 5.0.1
+- pyodbc 5.2.0
+- SQLAlchemy 2.0.48
 - Y más...
 
 4. **Configurar variables de entorno**
