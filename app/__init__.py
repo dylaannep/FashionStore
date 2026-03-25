@@ -77,6 +77,10 @@ def register_blueprints(flask_app):
     from app.routes.rol_routes import rol_bp
     flask_app.register_blueprint(rol_bp)
 
+    # Registrar blueprint de colores
+    from app.routes.color_routes import color_bp
+    flask_app.register_blueprint(color_bp)
+
     # Ruta principal temporal: registrar con add_url_rule en lugar de usar
     # el decorador @app.route dentro de la definición (evita conflictos
     # durante la importación del paquete `app`).
