@@ -7,10 +7,11 @@ Aquí se importarán todos los modelos creados
 from app.models.rol_model import Rol
 from app.models.categoria_model import Categoria
 from app.models.color_model import Color
+from app.models.talla_model import Talla
 
 # TODO: Importar más modelos a medida que se vayan creando
 # from app.models.usuario_model import Usuario
 # from app.models.categoria_model import Categoria
 # etc.
 
-__all__ = ['Rol', 'Categoria', 'Color']
+__all__ = ['Rol', 'Categoria', 'Color', 'Talla']

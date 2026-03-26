@@ -510,6 +510,17 @@ python run.py
    git push origin feature/login-system
    # Luego crear Pull Request en GitHub
    ```
+7. **Migraciones en el proyecto**
+   ```
+   Instalacion 
+      source venv/bin/activate && pip install Flask-Migrate
+
+   Inicializar carpetas para crear la migracion 
+      export FLASK_APP=run.py && flask db init
+
+   Generar la migración
+      flask db migrate -m "Create initial tables: Roles, Categorias, Colores"
+   ```
 
 ## 👥 Autor
 

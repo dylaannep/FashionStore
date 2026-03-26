@@ -6,12 +6,14 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_migrate import Migrate
 from config import config
 
 # Inicialización de extensiones
 db = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
+migrate = Migrate()
 
 
 def create_app(config_name='default'):
@@ -33,6 +35,7 @@ def create_app(config_name='default'):
     
     # Inicializar extensiones con la app
     db.init_app(app)
+    migrate.init_app(app, db)
     login_manager.init_app(app)
     mail.init_app(app)
     
@@ -43,10 +46,10 @@ def create_app(config_name='default'):
     
     # Importar modelos para que SQLAlchemy los reconozca
     with app.app_context():
-        # Importar modelos
-        from app.models import Rol, Categoria, Color
-        # TODO: Importar más modelos a medida que los crees
-        # from app.models import Usuario, etc.
+        # Importar todo el paquete de modelos para asegurar que
+        # SQLAlchemy registre todas las tablas en db.metadata.
+        from app import models  # no asigna el nombre 'app' en este scope
+        # TODO: Importar más modelos a medida que los crees dentro de app/models
         
         # Crear tablas si no existen (opcional, comentar si usas migraciones)
         # db.create_all()
@@ -63,20 +66,21 @@ def create_app(config_name='default'):
     return app
 
 
-def register_blueprints(app):
+def register_blueprints(flask_app):
     """
     Registra todos los blueprints de la aplicación
     
     Args:
-        app (Flask): Instancia de la aplicación
+        flask_app (Flask): Instancia de la aplicación
     """
     # TODO: Importar y registrar tus blueprints aquí a medida que los crees
     # Ejemplo:
     # from app.routes.auth_routes import auth_bp
-    # app.register_blueprint(auth_bp, url_prefix='/auth')
+    # flask_app.register_blueprint(auth_bp, url_prefix='/auth')
     
-    # Ruta principal temporal
-    @app.route('/')
+    # Ruta principal temporal: registrar con add_url_rule en lugar de usar
+    # el decorador @app.route dentro de la definición (evita conflictos
+    # durante la importación del paquete `app`).
     def index():
         return {
             'message': 'Bienvenido a FashionStore API',
@@ -84,38 +88,40 @@ def register_blueprints(app):
             'version': '1.0.0'
         }
 
+    flask_app.add_url_rule('/', 'index', index)
 
-def register_error_handlers(app):
+
+def register_error_handlers(flask_app):
     """
     Registra manejadores de errores personalizados
     
     Args:
-        app (Flask): Instancia de la aplicación
+        flask_app (Flask): Instancia de la aplicación
     """
-    @app.errorhandler(404)
+    @flask_app.errorhandler(404)
     def not_found_error(error):
         return {'error': 'Recurso no encontrado'}, 404
     
-    @app.errorhandler(500)
+    @flask_app.errorhandler(500)
     def internal_error(error):
         db.session.rollback()
         return {'error': 'Error interno del servidor'}, 500
 
 
-def register_commands(app):
+def register_commands(flask_app):
     """
     Registra comandos CLI personalizados
     
     Args:
-        app (Flask): Instancia de la aplicación
+        flask_app (Flask): Instancia de la aplicación
     """
-    @app.cli.command()
+    @flask_app.cli.command()
     def init_db():
         """Inicializa la base de datos"""
         db.create_all()
         print('Base de datos inicializada correctamente.')
     
-    @app.cli.command()
+    @flask_app.cli.command()
     def drop_db():
         """Elimina todas las tablas de la base de datos"""
         if input('¿Estás seguro? (s/n): ').lower() == 's':
