@@ -73,11 +73,10 @@ def register_blueprints(flask_app):
     Args:
         flask_app (Flask): Instancia de la aplicación
     """
-    # TODO: Importar y registrar tus blueprints aquí a medida que los crees
-    # Ejemplo:
-    # from app.routes.auth_routes import auth_bp
-    # flask_app.register_blueprint(auth_bp, url_prefix='/auth')
-    
+    # Registrar blueprint de roles
+    from app.routes.rol_routes import rol_bp
+    flask_app.register_blueprint(rol_bp)
+
     # Ruta principal temporal: registrar con add_url_rule en lugar de usar
     # el decorador @app.route dentro de la definición (evita conflictos
     # durante la importación del paquete `app`).
