@@ -10,10 +10,18 @@ from app.models.color_model import Color
 from app.models.talla_model import Talla
 from app.models.estados_pedido_model import EstadoPedido
 from app.models.metodos_pago_model import MetodoPago
+from app.models.usuario_model import Usuario
+from app.models.usuario_rol_model import UsuarioRol
+from app.models.subcategoria_model import SubCategoria
+from app.models.producto_model import Producto
+from app.models.producto_variante_model import ProductoVariante
+from app.models.inventario_model import Inventario
+from app.models.movimiento_inventario_model import MovimientoInventario
+from app.models.pedido_model import Pedido
+from app.models.detalle_pedido_model import DetallePedido
 
-# TODO: Importar más modelos a medida que se vayan creando
-# from app.models.usuario_model import Usuario
-# from app.models.categoria_model import Categoria
-# etc.
-
-__all__ = ['Rol', 'Categoria', 'Color', 'Talla', 'EstadoPedido', 'MetodoPago']
+__all__ = [
+    'Rol', 'Categoria', 'Color', 'Talla', 'EstadoPedido', 'MetodoPago',
+    'Usuario', 'UsuarioRol', 'SubCategoria', 'Producto', 'ProductoVariante',
+    'Inventario', 'MovimientoInventario', 'Pedido', 'DetallePedido'
+]

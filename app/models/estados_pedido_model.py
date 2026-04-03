@@ -15,6 +15,7 @@ class EstadoPedido(db.Model):
         nombre: Nombre del estado
         activo: Indica si el estado está activo
         fecha_creacion: Fecha de creación del registro
+        comentario: Campo temporal para pruebas de migración
     """
 
     __tablename__ = 'EstadosPedido'
@@ -23,6 +24,7 @@ class EstadoPedido(db.Model):
     nombre = db.Column('Nombre', db.String(50), nullable=False, unique=True)
     activo = db.Column('Activo', db.Boolean, nullable=False, default=True)
     fecha_creacion = db.Column('FechaCreacion', db.DateTime, nullable=False, default=datetime.utcnow)
+    comentario = db.Column('Comentario', db.String(100))  # Campo temporal para pruebas
 
     def __repr__(self):
         return f'<EstadoPedido {self.nombre}>'
@@ -32,5 +34,6 @@ class EstadoPedido(db.Model):
             'id_estado': self.id_estado,
             'nombre': self.nombre,
             'activo': self.activo,
-            'fecha_creacion': self.fecha_creacion.isoformat() if self.fecha_creacion else None
+            'fecha_creacion': self.fecha_creacion.isoformat() if self.fecha_creacion else None,
+            'comentario': self.comentario
         }
