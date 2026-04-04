@@ -81,6 +81,42 @@ def register_blueprints(flask_app):
     from app.routes.color_routes import color_bp
     flask_app.register_blueprint(color_bp)
 
+    # Registrar blueprint de usuarios
+    from app.routes.usuario_routes import usuario_bp
+    flask_app.register_blueprint(usuario_bp)
+
+    # Registrar blueprint de usuario_rol
+    from app.routes.usuario_rol_routes import usuario_rol_bp
+    flask_app.register_blueprint(usuario_rol_bp)
+
+    # Registrar blueprint de subcategorias
+    from app.routes.subcategoria_routes import subcategoria_bp
+    flask_app.register_blueprint(subcategoria_bp)
+
+    # Registrar blueprint de productos
+    from app.routes.producto_routes import producto_bp
+    flask_app.register_blueprint(producto_bp)
+
+    # Registrar blueprint de producto_variante
+    from app.routes.producto_variante_routes import producto_variante_bp
+    flask_app.register_blueprint(producto_variante_bp)
+
+    # Registrar blueprint de inventario
+    from app.routes.inventario_routes import inventario_bp
+    flask_app.register_blueprint(inventario_bp)
+
+    # Registrar blueprint de movimiento_inventario
+    from app.routes.movimiento_inventario_routes import movimiento_inventario_bp
+    flask_app.register_blueprint(movimiento_inventario_bp)
+
+    # Registrar blueprint de pedidos
+    from app.routes.pedido_routes import pedido_bp
+    flask_app.register_blueprint(pedido_bp)
+
+    # Registrar blueprint de detalle_pedido
+    from app.routes.detalle_pedido_routes import detalle_pedido_bp
+    flask_app.register_blueprint(detalle_pedido_bp)
+
     # Ruta principal temporal: registrar con add_url_rule en lugar de usar
     # el decorador @app.route dentro de la definición (evita conflictos
     # durante la importación del paquete `app`).
