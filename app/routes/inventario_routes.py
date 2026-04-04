@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
 from app.services.inventario_service import InventarioService
 
@@ -17,6 +18,7 @@ def get_inventario(id):
     return jsonify(inventario), 200
 
 @inventario_bp.route('/', methods=['POST'])
+@jwt_required()
 def create_inventario():
     try:
         inventario = InventarioService.create(request.json)
@@ -29,6 +31,7 @@ def create_inventario():
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 @inventario_bp.route('/<int:id>/stock', methods=['PUT'])
+@jwt_required()
 def update_stock(id):
     data = request.json
     try:

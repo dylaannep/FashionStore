@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
 from app.services.subcategoria_service import SubcategoriaService
 
@@ -14,6 +15,7 @@ def list_subcategorias():
     return jsonify([s for s in subcategorias]), 200
 
 @subcategoria_bp.route('/<int:id>', methods=['GET'])
+@jwt_required()
 def get_subcategoria(id):
     subcategoria = SubcategoriaService.get_by_id(id)
     if not subcategoria:
@@ -21,6 +23,7 @@ def get_subcategoria(id):
     return jsonify(subcategoria), 200
 
 @subcategoria_bp.route('/', methods=['POST'])
+@jwt_required()
 def create_subcategoria():
     try:
         subcategoria = SubcategoriaService.create(request.json)
@@ -33,6 +36,7 @@ def create_subcategoria():
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 @subcategoria_bp.route('/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_subcategoria(id):
     try:
         subcategoria = SubcategoriaService.update(id, request.json)
@@ -47,6 +51,7 @@ def update_subcategoria(id):
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 @subcategoria_bp.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_subcategoria(id):
     try:
         eliminado = SubcategoriaService.delete(id)

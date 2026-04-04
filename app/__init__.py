@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
 from config import config
 
 # Inicialización de extensiones
@@ -14,6 +15,7 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
 migrate = Migrate()
+jwt = JWTManager()
 
 
 def create_app(config_name='default'):
@@ -38,6 +40,19 @@ def create_app(config_name='default'):
     migrate.init_app(app, db)
     login_manager.init_app(app)
     mail.init_app(app)
+    jwt.init_app(app)
+
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return {'error': 'El token ha expirado. Vuelve a iniciar sesión.'}, 401
+
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error):
+        return {'error': 'Token inválido.'}, 422
+
+    @jwt.unauthorized_loader
+    def missing_token_callback(error):
+        return {'error': 'Se requiere autenticación. Token no proporcionado.'}, 401
     
     # Configurar Flask-Login
     login_manager.login_view = 'auth.login'
@@ -117,6 +132,10 @@ def register_blueprints(flask_app):
     from app.routes.detalle_pedido_routes import detalle_pedido_bp
     flask_app.register_blueprint(detalle_pedido_bp)
 
+    # Registrar blueprint de autenticación
+    from app.routes.auth_routes import auth_bp
+    flask_app.register_blueprint(auth_bp)
+
     # Ruta principal temporal: registrar con add_url_rule en lugar de usar
     # el decorador @app.route dentro de la definición (evita conflictos
     # durante la importación del paquete `app`).
@@ -179,7 +198,5 @@ def load_user(user_id):
     Returns:
         Usuario: Objeto usuario o None
     """
-    # TODO: Implementar cuando tengas el modelo Usuario creado
-    # from app.models.usuario_model import Usuario
-    # return Usuario.query.get(int(user_id))
-    return None
+    from app.models.usuario_model import Usuario
+    return Usuario.query.get(int(user_id))

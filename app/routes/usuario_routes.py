@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
 from app.services.usuario_service import UsuarioService
 
@@ -10,6 +11,7 @@ def list_usuarios():
     return jsonify([u for u in usuarios]), 200
 
 @usuario_bp.route('/<int:id>', methods=['GET'])
+@jwt_required()
 def get_usuario(id):
     usuario = UsuarioService.get_by_id(id)
     if not usuario:
@@ -17,6 +19,7 @@ def get_usuario(id):
     return jsonify(usuario), 200
 
 @usuario_bp.route('/', methods=['POST'])
+@jwt_required()
 def create_usuario():
     try:
         usuario = UsuarioService.create(request.json)
@@ -29,6 +32,7 @@ def create_usuario():
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 @usuario_bp.route('/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_usuario(id):
     try:
         usuario = UsuarioService.update(id, request.json)
@@ -43,6 +47,7 @@ def update_usuario(id):
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 @usuario_bp.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_usuario(id):
     try:
         eliminado = UsuarioService.delete(id)
@@ -53,6 +58,7 @@ def delete_usuario(id):
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 @usuario_bp.route('/<int:id>/cambiar-password', methods=['PUT'])
+@jwt_required()
 def cambiar_password(id):
     data = request.json
     try:

@@ -1,15 +1,18 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
 from app.services.movimiento_inventario_service import MovimientoInventarioService
 
 movimiento_bp = Blueprint('movimientos', __name__, url_prefix='/api/movimientos')
 
 @movimiento_bp.route('/', methods=['GET'])
+@jwt_required()
 def list_movimientos():
     movimientos = MovimientoInventarioService.get_all()
     return jsonify([m for m in movimientos]), 200
 
 @movimiento_bp.route('/<int:id>', methods=['GET'])
+@jwt_required()
 def get_movimiento(id):
     movimiento = MovimientoInventarioService.get_by_id(id)
     if not movimiento:
@@ -17,6 +20,7 @@ def get_movimiento(id):
     return jsonify(movimiento), 200
 
 @movimiento_bp.route('/', methods=['POST'])
+@jwt_required()
 def create_movimiento():
     try:
         movimiento = MovimientoInventarioService.create(request.json)

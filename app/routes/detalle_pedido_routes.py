@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
 from app.services.detalle_pedido_service import DetallePedidoService
 
@@ -14,6 +15,7 @@ def list_detalles():
     return jsonify([d for d in detalles]), 200
 
 @detalle_pedido_bp.route('/', methods=['POST'])
+@jwt_required()
 def create_detalle():
     try:
         detalle = DetallePedidoService.create(request.json)
@@ -26,6 +28,7 @@ def create_detalle():
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 @detalle_pedido_bp.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_detalle(id):
     try:
         eliminado = DetallePedidoService.delete(id)

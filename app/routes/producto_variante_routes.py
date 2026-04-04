@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
 from app.services.producto_variante_service import ProductoVarianteService
 
@@ -14,6 +15,7 @@ def list_producto_variantes():
     return jsonify([v for v in variantes]), 200
 
 @producto_variante_bp.route('/<int:id>', methods=['GET'])
+@jwt_required()
 def get_producto_variante(id):
     variante = ProductoVarianteService.get_by_id(id)
     if not variante:
@@ -21,6 +23,7 @@ def get_producto_variante(id):
     return jsonify(variante), 200
 
 @producto_variante_bp.route('/', methods=['POST'])
+@jwt_required()
 def create_producto_variante():
     try:
         variante = ProductoVarianteService.create(request.json)
@@ -33,6 +36,7 @@ def create_producto_variante():
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 @producto_variante_bp.route('/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_producto_variante(id):
     try:
         variante = ProductoVarianteService.update(id, request.json)
@@ -47,6 +51,7 @@ def update_producto_variante(id):
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 @producto_variante_bp.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_producto_variante(id):
     try:
         eliminado = ProductoVarianteService.delete(id)

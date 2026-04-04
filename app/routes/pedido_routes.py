@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
 from app.services.pedido_service import PedidoService
 
@@ -10,6 +11,7 @@ def list_pedidos():
     return jsonify([p for p in pedidos]), 200
 
 @pedido_bp.route('/<int:id>', methods=['GET'])
+@jwt_required()
 def get_pedido(id):
     pedido = PedidoService.get_by_id(id)
     if not pedido:
@@ -17,6 +19,7 @@ def get_pedido(id):
     return jsonify(pedido), 200
 
 @pedido_bp.route('/', methods=['POST'])
+@jwt_required()
 def create_pedido():
     try:
         pedido = PedidoService.create(request.json)
@@ -29,6 +32,7 @@ def create_pedido():
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 @pedido_bp.route('/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_pedido(id):
     try:
         pedido = PedidoService.update(id, request.json)
@@ -43,6 +47,7 @@ def update_pedido(id):
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 @pedido_bp.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_pedido(id):
     try:
         eliminado = PedidoService.delete(id)
@@ -53,6 +58,7 @@ def delete_pedido(id):
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 @pedido_bp.route('/<int:id>/estado', methods=['PUT'])
+@jwt_required()
 def cambiar_estado(id):
     data = request.json
     try:

@@ -3,6 +3,7 @@ Rutas (blueprint) para el recurso Roles
 Define endpoints REST y delega la lógica al servicio `RolService`.
 """
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
 from app.services.rol_service import RolService
 
@@ -25,6 +26,7 @@ def list_roles():
 
 
 @rol_bp.route('/<int:id_rol>', methods=['GET'])
+@jwt_required()
 def get_rol(id_rol):
     rol = RolService.get_by_id(id_rol)
     if not rol:
@@ -33,6 +35,7 @@ def get_rol(id_rol):
 
 
 @rol_bp.route('/', methods=['POST'])
+@jwt_required()
 def create_rol():
     payload = request.get_json() or {}
     try:
@@ -47,6 +50,7 @@ def create_rol():
 
 
 @rol_bp.route('/<int:id_rol>', methods=['PUT'])
+@jwt_required()
 def update_rol(id_rol):
     payload = request.get_json() or {}
     try:
@@ -63,6 +67,7 @@ def update_rol(id_rol):
 
 
 @rol_bp.route('/<int:id_rol>', methods=['DELETE'])
+@jwt_required()
 def delete_rol(id_rol):
     ok = RolService.delete(id_rol)
     if not ok:

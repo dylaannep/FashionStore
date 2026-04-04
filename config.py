@@ -13,7 +13,10 @@ class Config:
     """Configuración base de la aplicación"""
     
     # Secret Key para sesiones y CSRF
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'jwt-dev-secret-change-in-production'
+    JWT_ACCESS_TOKEN_EXPIRES = 3600        # 1 hora en segundos
+    JWT_REFRESH_TOKEN_EXPIRES = 604800     # 7 días en segundos
     
     # Configuración de SQL Server
     DB_SERVER = os.environ.get('DB_SERVER') or 'localhost'

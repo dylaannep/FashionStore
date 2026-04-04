@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
 from app.services.producto_service import ProductoService
 
@@ -10,6 +11,7 @@ def list_productos():
     return jsonify([p for p in productos]), 200
 
 @producto_bp.route('/<int:id>', methods=['GET'])
+@jwt_required()
 def get_producto(id):
     producto = ProductoService.get_by_id(id)
     if not producto:
@@ -17,6 +19,7 @@ def get_producto(id):
     return jsonify(producto), 200
 
 @producto_bp.route('/', methods=['POST'])
+@jwt_required()
 def create_producto():
     try:
         producto = ProductoService.create(request.json)
@@ -29,6 +32,7 @@ def create_producto():
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 @producto_bp.route('/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_producto(id):
     try:
         producto = ProductoService.update(id, request.json)
@@ -43,6 +47,7 @@ def update_producto(id):
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 @producto_bp.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_producto(id):
     try:
         eliminado = ProductoService.delete(id)
