@@ -8,6 +8,7 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 from config import config
 
 # Inicialización de extensiones
@@ -41,6 +42,13 @@ def create_app(config_name='default'):
     login_manager.init_app(app)
     mail.init_app(app)
     jwt.init_app(app)
+    # Configurar CORS solo para rutas /api/ y origen del frontend
+    CORS(app,
+         resources={r"/api/*": {"origins": "http://localhost:5173"}},
+         supports_credentials=True,
+         allow_headers=["Authorization", "Content-Type"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    )
 
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
