@@ -8,7 +8,7 @@ usuario_bp = Blueprint('usuarios', __name__, url_prefix='/api/usuarios')
 @usuario_bp.route('/', methods=['GET'])
 def list_usuarios():
     usuarios = UsuarioService.get_all()
-    return jsonify([u for u in usuarios]), 200
+    return jsonify([u.to_dict() for u in usuarios]), 200
 
 @usuario_bp.route('/<int:id>', methods=['GET'])
 @jwt_required()

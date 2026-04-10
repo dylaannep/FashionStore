@@ -8,6 +8,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from DataSeeders.seed_roles import seed_roles
+from DataSeeders.seed_users import seed_users
 
 
 def run_all_seeders():
@@ -18,6 +19,7 @@ def run_all_seeders():
     
     seeders = [
         ('Roles', seed_roles),
+        ('Usuarios', seed_users),
         # Agrega más seeders aquí a medida que los crees
         # ('Categorías', seed_categorias),
         # ('Colores', seed_colores),
