@@ -112,6 +112,10 @@ def register_blueprints(flask_app):
     from app.routes.usuario_rol_routes import usuario_rol_bp
     flask_app.register_blueprint(usuario_rol_bp)
 
+    # Registrar blueprint de categorias
+    from app.routes.categoria_routes import categoria_bp
+    flask_app.register_blueprint(categoria_bp)
+    
     # Registrar blueprint de subcategorias
     from app.routes.subcategoria_routes import subcategoria_bp
     flask_app.register_blueprint(subcategoria_bp)
