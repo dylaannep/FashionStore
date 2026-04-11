@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { AiOutlineEdit as Edit } from 'react-icons/ai';
+import { AiOutlinePoweroff as Power } from 'react-icons/ai';
 
-const DataTable = ({ columns, data, onEdit, onDelete, loading }) => {
+const DataTable = ({ columns, data, onEdit, onToggleActive, loading }) => {
   if (loading) {
     return <div className="text-acento">Cargando...</div>;
   }
@@ -11,35 +13,27 @@ const DataTable = ({ columns, data, onEdit, onDelete, loading }) => {
   }
 
   return (
-    <table className="w-full bg-secundario text-primario rounded-md">
-      <thead>
-        <tr className="bg-fondo">
+    <table className="w-full bg-white border border-borde rounded-lg">
+      <thead className="bg-sidebar text-white">
+        <tr>
           {columns.map((col) => (
-            <th key={col.key} className="px-4 py-2 text-left">{col.label}</th>
+            <th key={col.key} className="px-4 py-2 text-left text-sm font-medium">{col.label}</th>
           ))}
-          <th className="px-4 py-2">Acciones</th>
+          <th className="px-4 py-2 text-left text-sm font-medium">Acciones</th>
         </tr>
       </thead>
       <tbody>
-        {data.map((row, rowIndex) => (
-          <tr key={rowIndex} className="hover:bg-secundario/50">
+        {data.map((row) => (
+          <tr key={row.id} className="hover:bg-gray-100">
             {columns.map((col) => (
-              <td key={col.key} className="px-4 py-2">
-                {col.render ? col.render(row[col.key], row) : row[col.key]}
-              </td>
+              <td key={col.key} className="px-4 py-2 text-sm text-primario">{row[col.key]}</td>
             ))}
             <td className="px-4 py-2 flex gap-2">
-              <button
-                className="text-acento hover:underline"
-                onClick={() => onEdit(row)}
-              >
-                Editar
+              <button onClick={() => onEdit(row)} className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-acento bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                <Edit size={13}/> Editar
               </button>
-              <button
-                className="text-error hover:underline"
-                onClick={() => onDelete(row)}
-              >
-                Eliminar
+              <button onClick={() => onToggleActive(row)} className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-warning bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors">
+                <Power size={13}/> {row.activo ? 'Inactivar' : 'Activar'}
               </button>
             </td>
           </tr>
@@ -59,13 +53,13 @@ DataTable.propTypes = {
   ).isRequired,
   data: PropTypes.array.isRequired,
   onEdit: PropTypes.func,
-  onDelete: PropTypes.func,
+  onToggleActive: PropTypes.func,
   loading: PropTypes.bool,
 };
 
 DataTable.defaultProps = {
   onEdit: () => {},
-  onDelete: () => {},
+  onToggleActive: () => {},
   loading: false,
 };
 

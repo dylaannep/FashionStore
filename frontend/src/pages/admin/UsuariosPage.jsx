@@ -38,9 +38,14 @@ const UsuariosPage = () => {
     }
   };
 
-  const handleEdit = (usuario) => {
-    setFormData({ nombre: usuario.nombre, email: usuario.email, rol: usuario.rol });
-    setEditingId(usuario.id);
+  const handleEdit = (item) => {
+    setFormData({
+      nombre: item.nombre || '',
+      email: item.email || '',
+      rol: item.rol || '',
+      activo: item.activo !== undefined ? item.activo : true,
+    });
+    setEditingId(item.id_usuario);
     setModalOpen(true);
   };
 
@@ -52,6 +57,14 @@ const UsuariosPage = () => {
       } catch (error) {
         console.error('Error deleting usuario:', error);
       }
+    }
+  };
+
+  const handleToggleActive = async (item) => {
+    const accion = item.activo ? 'inactivar' : 'activar';
+    if (window.confirm(`¿Deseas ${accion} "${item.nombre}"?`)) {
+      await usuariosService.update(item.id_usuario, { activo: !item.activo });
+      fetchUsuarios();
     }
   };
 

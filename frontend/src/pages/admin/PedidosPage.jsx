@@ -38,9 +38,13 @@ const PedidosPage = () => {
     }
   };
 
-  const handleEdit = (pedido) => {
-    setFormData({ usuario: pedido.usuario, total: pedido.total });
-    setEditingId(pedido.id);
+  const handleEdit = (item) => {
+    setFormData({
+      usuario: item.usuario || '',
+      total: item.total || 0,
+      activo: item.activo !== undefined ? item.activo : true,
+    });
+    setEditingId(item.id_pedido);
     setModalOpen(true);
   };
 
@@ -52,6 +56,14 @@ const PedidosPage = () => {
       } catch (error) {
         console.error('Error deleting pedido:', error);
       }
+    }
+  };
+
+  const handleToggleActive = async (item) => {
+    const accion = item.activo ? 'inactivar' : 'activar';
+    if (window.confirm(`¿Deseas ${accion} "${item.usuario}"?`)) {
+      await pedidosService.update(item.id_pedido, { activo: !item.activo });
+      fetchPedidos();
     }
   };
 

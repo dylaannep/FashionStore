@@ -20,51 +20,50 @@ const navItems = [
   { label: 'Configuración', icon: <Settings size={20} />, to: '/admin/configuracion' },
 ];
 
-export default function AdminLayout() {
+const AdminLayout = () => {
   const { usuario, logout } = useAuthStore();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
-  const [productosOpen, setProductosOpen] = React.useState(false);
 
   return (
-    <div className="flex min-h-screen bg-fondo">
+    <div className="flex h-screen bg-fondo">
       {/* Sidebar */}
-      <aside className={`bg-secundario text-primario w-64 transition-all duration-300 ${sidebarOpen ? 'block' : 'w-16'}`}>
-        <div className="flex items-center justify-between p-4 border-b border-gris">
-          <span className="font-bold text-acento text-xl">FS</span>
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gris ml-2">{sidebarOpen ? '<' : '>'}</button>
-        </div>
-        <nav className="mt-4">
-          {navItems.map((item, idx) => (
-            <div key={idx}>
-              <NavLink
-                to={item.to}
-                className={({ isActive }) => `flex items-center gap-3 px-4 py-2 hover:bg-acento/10 rounded transition ${isActive ? 'bg-acento/10 text-acento border-l-2 border-acento' : ''}`}
-              >
-                {item.icon}
-                {sidebarOpen && <span>{item.label}</span>}
-              </NavLink>
-              {item.sub && sidebarOpen && (
-                <div className="ml-8">
-                  {item.sub.map((sub, subIdx) => (
-                    <NavLink
-                      key={subIdx}
-                      to={sub.to}
-                      className={({ isActive }) => `flex items-center gap-2 px-2 py-1 text-sm hover:bg-acento/10 rounded transition ${isActive ? 'bg-acento/10 text-acento' : ''}`}
-                    >
-                      {sub.icon}
-                      <span>{sub.label}</span>
-                    </NavLink>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+      <aside className="w-64 bg-sidebar text-white flex flex-col">
+        <div className="p-4 text-lg font-bold">FashionStore</div>
+        <nav className="flex-1">
+          <ul>
+            {navItems.map((item, idx) => (
+              <li key={idx} className="hover:bg-sidebarHover px-4 py-2">
+                <NavLink
+                  to={item.to}
+                  className={({ isActive }) => `flex items-center gap-3 px-4 py-2 hover:bg-acento/10 rounded transition ${isActive ? 'bg-acento/10 text-acento border-l-2 border-acento' : ''}`}
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </NavLink>
+                {item.sub && (
+                  <ul className="ml-4">
+                    {item.sub.map((sub, subIdx) => (
+                      <li key={subIdx} className="hover:bg-sidebarHover px-4 py-2">
+                        <NavLink
+                          to={sub.to}
+                          className={({ isActive }) => `flex items-center gap-2 px-2 py-1 text-sm hover:bg-acento/10 rounded transition ${isActive ? 'bg-acento/10 text-acento' : ''}`}
+                        >
+                          {sub.icon}
+                          <span>{sub.label}</span>
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
         </nav>
       </aside>
       {/* Main */}
-      <div className="flex-1 flex flex-col">
-        <header className="bg-secundario border-b border-gris flex items-center justify-between px-6 py-3">
+      <main className="flex-1 flex flex-col">
+        <header className="bg-white shadow-md p-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="font-semibold">{usuario?.nombre}</span>
             <span className="text-xs text-gris">({usuario?.email})</span>
@@ -74,10 +73,12 @@ export default function AdminLayout() {
             <span>Cerrar sesión</span>
           </button>
         </header>
-        <main className="flex-1 p-8 bg-fondo">
+        <div className="flex-1 p-4 bg-fondo">
           <Outlet />
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
-}
+};
+
+export default AdminLayout;

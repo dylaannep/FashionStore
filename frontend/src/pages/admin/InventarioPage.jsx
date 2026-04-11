@@ -39,9 +39,21 @@ const InventarioPage = () => {
   };
 
   const handleEdit = (item) => {
-    setFormData({ producto: item.producto, cantidad: item.cantidad });
-    setEditingId(item.id);
+    setFormData({
+      producto: item.producto || '',
+      cantidad: item.cantidad || 0,
+      activo: item.activo !== undefined ? item.activo : true,
+    });
+    setEditingId(item.id_inventario);
     setModalOpen(true);
+  };
+
+  const handleToggleActive = async (item) => {
+    const accion = item.activo ? 'inactivar' : 'activar';
+    if (window.confirm(`¿Deseas ${accion} "${item.producto}"?`)) {
+      await inventarioService.update(item.id_inventario, { activo: !item.activo });
+      fetchInventario();
+    }
   };
 
   const handleDelete = async (item) => {

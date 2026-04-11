@@ -49,9 +49,14 @@ const MovimientosPage = () => {
     }
   };
 
-  const handleEdit = (movimiento) => {
-    setFormData({ producto: movimiento.producto, tipo: movimiento.tipo, cantidad: movimiento.cantidad });
-    setEditingId(movimiento.id);
+  const handleEdit = (item) => {
+    setFormData({
+      producto: item.producto || '',
+      tipo: item.tipo || 'entrada',
+      cantidad: item.cantidad || 0,
+      activo: item.activo !== undefined ? item.activo : true,
+    });
+    setEditingId(item.id_movimiento);
     setModalOpen(true);
   };
 
@@ -63,6 +68,14 @@ const MovimientosPage = () => {
       } catch (error) {
         console.error('Error deleting movimiento:', error);
       }
+    }
+  };
+
+  const handleToggleActive = async (item) => {
+    const accion = item.activo ? 'inactivar' : 'activar';
+    if (window.confirm(`¿Deseas ${accion} "${item.producto}"?`)) {
+      await movimientosService.update(item.id_movimiento, { activo: !item.activo });
+      fetchMovimientos();
     }
   };
 

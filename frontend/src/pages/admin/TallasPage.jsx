@@ -27,9 +27,12 @@ const TallasPage = () => {
     }
   };
 
-  const handleEdit = (talla) => {
-    setFormData({ nombre: talla.nombre });
-    setEditingId(talla.id);
+  const handleEdit = (item) => {
+    setFormData({
+      nombre: item.nombre || '',
+      activo: item.activo !== undefined ? item.activo : true,
+    });
+    setEditingId(item.id_talla);
     setModalOpen(true);
   };
 
@@ -41,6 +44,14 @@ const TallasPage = () => {
       } catch (error) {
         console.error('Error deleting talla:', error);
       }
+    }
+  };
+
+  const handleToggleActive = async (item) => {
+    const accion = item.activo ? 'inactivar' : 'activar';
+    if (window.confirm(`¿Deseas ${accion} "${item.nombre}"?`)) {
+      await tallasService.update(item.id_talla, { activo: !item.activo });
+      fetchTallas();
     }
   };
 

@@ -38,9 +38,13 @@ const ProductosPage = () => {
     }
   };
 
-  const handleEdit = (producto) => {
-    setFormData({ nombre: producto.nombre, categoria: producto.categoria });
-    setEditingId(producto.id);
+  const handleEdit = (item) => {
+    setFormData({
+      nombre: item.nombre || '',
+      categoria: item.categoria || '',
+      activo: item.activo !== undefined ? item.activo : true,
+    });
+    setEditingId(item.id_producto);
     setModalOpen(true);
   };
 
@@ -52,6 +56,14 @@ const ProductosPage = () => {
       } catch (error) {
         console.error('Error deleting producto:', error);
       }
+    }
+  };
+
+  const handleToggleActive = async (item) => {
+    const accion = item.activo ? 'inactivar' : 'activar';
+    if (window.confirm(`¿Deseas ${accion} "${item.nombre}"?`)) {
+      await productosService.update(item.id_producto, { activo: !item.activo });
+      fetchProductos();
     }
   };
 

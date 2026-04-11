@@ -38,9 +38,13 @@ const ProductoVariantesPage = () => {
     }
   };
 
-  const handleEdit = (variante) => {
-    setFormData({ nombre: variante.nombre, producto: variante.producto });
-    setEditingId(variante.id);
+  const handleEdit = (item) => {
+    setFormData({
+      nombre: item.nombre || '',
+      producto: item.producto || '',
+      activo: item.activo !== undefined ? item.activo : true,
+    });
+    setEditingId(item.id_producto_variante);
     setModalOpen(true);
   };
 
@@ -52,6 +56,14 @@ const ProductoVariantesPage = () => {
       } catch (error) {
         console.error('Error deleting variante:', error);
       }
+    }
+  };
+
+  const handleToggleActive = async (item) => {
+    const accion = item.activo ? 'inactivar' : 'activar';
+    if (window.confirm(`¿Deseas ${accion} "${item.nombre}"?`)) {
+      await variantesService.update(item.id_producto_variante, { activo: !item.activo });
+      fetchVariantes();
     }
   };
 

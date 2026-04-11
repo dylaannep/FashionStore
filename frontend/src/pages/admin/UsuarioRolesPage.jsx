@@ -49,9 +49,13 @@ const UsuarioRolesPage = () => {
     }
   };
 
-  const handleEdit = (usuarioRol) => {
-    setFormData({ usuario: usuarioRol.usuario, rol: usuarioRol.rol });
-    setEditingId(usuarioRol.id);
+  const handleEdit = (item) => {
+    setFormData({
+      usuario: item.usuario || '',
+      rol: item.rol || '',
+      activo: item.activo !== undefined ? item.activo : true,
+    });
+    setEditingId(item.id_usuario_rol);
     setModalOpen(true);
   };
 
@@ -63,6 +67,14 @@ const UsuarioRolesPage = () => {
       } catch (error) {
         console.error('Error deleting usuario-rol:', error);
       }
+    }
+  };
+
+  const handleToggleActive = async (item) => {
+    const accion = item.activo ? 'inactivar' : 'activar';
+    if (window.confirm(`¿Deseas ${accion} "${item.usuario}"?`)) {
+      await usuarioRolesService.update(item.id_usuario_rol, { activo: !item.activo });
+      fetchUsuarioRoles();
     }
   };
 

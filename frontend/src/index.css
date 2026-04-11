@@ -13,5 +13,22 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 button {
-  @apply bg-acento text-primario px-4 py-2 rounded hover:bg-acento2;
+  /* Sin estilos globales - cada botón tiene sus propias clases */
+}
+
+/* Estilos de botón por tipo */
+.btn-primary {
+  @apply bg-acento hover:bg-acentoHover text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors inline-flex items-center gap-2;
+}
+
+.btn-secondary {
+  @apply bg-gray-100 hover:bg-gray-200 text-primario px-4 py-2.5 rounded-lg font-medium text-sm transition-colors;
+}
+
+.btn-danger {
+  @apply bg-amber-50 hover:bg-amber-100 text-warning border border-amber-200 px-3 py-1.5 rounded-lg text-xs;
+}
+
+.btn-success {
+  @apply bg-acento hover:bg-acentoHover text-white px-5 py-2.5 rounded-lg font-medium text-sm w-full;
 }

@@ -27,9 +27,12 @@ const ColoresPage = () => {
     }
   };
 
-  const handleEdit = (color) => {
-    setFormData({ nombre: color.nombre });
-    setEditingId(color.id);
+  const handleEdit = (item) => {
+    setFormData({
+      nombre: item.nombre || '',
+      activo: item.activo !== undefined ? item.activo : true,
+    });
+    setEditingId(item.id_color);
     setModalOpen(true);
   };
 
@@ -41,6 +44,14 @@ const ColoresPage = () => {
       } catch (error) {
         console.error('Error deleting color:', error);
       }
+    }
+  };
+
+  const handleToggleActive = async (item) => {
+    const accion = item.activo ? 'inactivar' : 'activar';
+    if (window.confirm(`¿Deseas ${accion} "${item.nombre}"?`)) {
+      await coloresService.update(item.id_color, { activo: !item.activo });
+      fetchColores();
     }
   };
 

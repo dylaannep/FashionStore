@@ -32,40 +32,44 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-fondo">
-      <div className="bg-secundario p-8 rounded-lg shadow-lg w-full max-w-md flex flex-col items-center">
-        <h1 className="text-3xl font-bold mb-6 text-acento">FashionStore</h1>
-        <form className="w-full" onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-primario mb-1">Correo electrónico</label>
-            <input
-              type="email"
-              className="w-full px-4 py-2 rounded bg-fondo text-primario border border-gris focus:outline-none focus:border-acento"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              autoFocus
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-primario mb-1">Contraseña</label>
-            <input
-              type="password"
-              className="w-full px-4 py-2 rounded bg-fondo text-primario border border-gris focus:outline-none focus:border-acento"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          {error && <div className="mb-4 text-error text-sm">{error}</div>}
-          <button
-            type="submit"
-            className="w-full py-2 rounded bg-acento text-fondo font-semibold hover:bg-acento2 transition disabled:opacity-60"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Ingresando...' : 'Iniciar sesión'}
-          </button>
-        </form>
+    <div className="min-h-screen bg-gray-100 flex">
+      <div className="w-1/2 bg-sidebar text-white flex flex-col items-center justify-center p-8">
+        <h1 className="text-4xl font-bold mb-4">FashionStore</h1>
+        <p className="text-lg">Bienvenido de nuevo</p>
+      </div>
+      <div className="w-1/2 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+          <h2 className="text-2xl font-bold text-primario mb-6">Iniciar Sesión</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-primario mb-1">Correo Electrónico</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Ingresa tu correo"
+                className={`w-full px-4 py-2 border ${error ? 'border-error' : 'border-borde'} rounded-lg focus:outline-none focus:ring-2 focus:ring-acento`}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-primario mb-1">Contraseña</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Ingresa tu contraseña"
+                className={`w-full px-4 py-2 border ${error ? 'border-error' : 'border-borde'} rounded-lg focus:outline-none focus:ring-2 focus:ring-acento`}
+              />
+            </div>
+            {error && <p className="text-error text-sm mb-4">{error}</p>}
+            <button
+              type="submit"
+              className="w-full bg-acento hover:bg-acentoHover text-white py-2 rounded-lg font-medium text-lg"
+            >
+              Iniciar Sesión
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

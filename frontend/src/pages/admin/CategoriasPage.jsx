@@ -27,9 +27,13 @@ const CategoriasPage = () => {
     }
   };
 
-  const handleEdit = (categoria) => {
-    setFormData({ nombre: categoria.nombre, descripcion: categoria.descripcion, activo: categoria.activo });
-    setEditingId(categoria.id);
+  const handleEdit = (item) => {
+    setFormData({
+      nombre: item.nombre || '',
+      descripcion: item.descripcion || '',
+      activo: item.activo !== undefined ? item.activo : true,
+    });
+    setEditingId(item.id_categoria);
     setModalOpen(true);
   };
 
@@ -41,6 +45,14 @@ const CategoriasPage = () => {
       } catch (error) {
         console.error('Error deleting categoria:', error);
       }
+    }
+  };
+
+  const handleToggleActive = async (item) => {
+    const accion = item.activo ? 'inactivar' : 'activar';
+    if (window.confirm(`¿Deseas ${accion} "${item.nombre}"?`)) {
+      await categoriasService.update(item.id_categoria, { activo: !item.activo });
+      fetchCategorias();
     }
   };
 
@@ -76,6 +88,7 @@ const CategoriasPage = () => {
         onEdit={handleEdit}
         onDelete={handleDelete}
         loading={loading}
+        onToggleActive={handleToggleActive}
       />
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? 'Editar Categoría' : 'Nueva Categoría'}>
         <form onSubmit={handleSubmit}>

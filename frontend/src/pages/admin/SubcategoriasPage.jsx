@@ -38,10 +38,22 @@ const SubcategoriasPage = () => {
     }
   };
 
-  const handleEdit = (subcategoria) => {
-    setFormData({ nombre: subcategoria.nombre, categoria: subcategoria.categoria });
-    setEditingId(subcategoria.id);
+  const handleEdit = (item) => {
+    setFormData({
+      nombre: item.nombre || '',
+      descripcion: item.descripcion || '',
+      activo: item.activo !== undefined ? item.activo : true,
+    });
+    setEditingId(item.id_subcategoria);
     setModalOpen(true);
+  };
+
+  const handleToggleActive = async (item) => {
+    const accion = item.activo ? 'inactivar' : 'activar';
+    if (window.confirm(`¿Deseas ${accion} "${item.nombre}"?`)) {
+      await subcategoriasService.update(item.id_subcategoria, { activo: !item.activo });
+      fetchSubcategorias();
+    }
   };
 
   const handleDelete = async (subcategoria) => {

@@ -15,18 +15,18 @@ export default function DashboardPage() {
       try {
         setLoading(true);
         const [productosRes, pedidosRes, usuariosRes, bajoStockRes] = await Promise.all([
-          axios.get('/api/productos/count'),
-          axios.get('/api/pedidos?limit=5'),
-          axios.get('/api/usuarios/count'),
-          axios.get('/api/productos/bajo-stock'),
+          axios.get('/api/productos/'),
+          axios.get('/api/pedidos/'),
+          axios.get('/api/usuarios/'),
+          axios.get('/api/inventario/bajo-stock'),
         ]);
         setStats({
-          productos: productosRes.data.count,
-          pedidos: pedidosRes.data.count,
-          usuarios: usuariosRes.data.count,
-          bajoStock: bajoStockRes.data.count,
+          productos: productosRes.data.length,
+          pedidos: pedidosRes.data.length,
+          usuarios: usuariosRes.data.length,
+          bajoStock: bajoStockRes.data.length,
         });
-        setPedidos(pedidosRes.data.pedidos);
+        setPedidos(pedidosRes.data.slice(0, 5));
       } catch (err) {
         setError(err.response?.data?.error || 'Error al cargar los datos.');
         toast.error(error);
@@ -41,52 +41,49 @@ export default function DashboardPage() {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-acento mb-6">Bienvenido, {usuario?.nombre}</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-secundario rounded-lg p-6 shadow text-center">
-          <div className="text-3xl font-bold text-acento">{stats.productos}</div>
-          <div className="text-gris mt-2">Productos</div>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Bienvenido, {usuario?.nombre}</h1>
+      <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="bg-blue-100 p-4 rounded-lg shadow">
+          <h2 className="text-lg font-bold">Productos</h2>
+          <p className="text-2xl font-semibold text-blue-600">{stats.productos}</p>
         </div>
-        <div className="bg-secundario rounded-lg p-6 shadow text-center">
-          <div className="text-3xl font-bold text-acento">{stats.pedidos}</div>
-          <div className="text-gris mt-2">Pedidos</div>
+        <div className="bg-green-100 p-4 rounded-lg shadow">
+          <h2 className="text-lg font-bold">Pedidos</h2>
+          <p className="text-2xl font-semibold text-green-600">{stats.pedidos}</p>
         </div>
-        <div className="bg-secundario rounded-lg p-6 shadow text-center">
-          <div className="text-3xl font-bold text-acento">{stats.usuarios}</div>
-          <div className="text-gris mt-2">Usuarios</div>
+        <div className="bg-yellow-100 p-4 rounded-lg shadow">
+          <h2 className="text-lg font-bold">Usuarios</h2>
+          <p className="text-2xl font-semibold text-yellow-600">{stats.usuarios}</p>
         </div>
-      </div>
-      <div className="mt-6">
-        <h2 className="text-xl font-bold text-acento mb-4">Productos en bajo stock</h2>
-        <div className="bg-secundario rounded-lg p-6 shadow text-center">
-          <div className="text-3xl font-bold text-error">{stats.bajoStock}</div>
-          <div className="text-gris mt-2">Productos con bajo stock</div>
+        <div className="bg-red-100 p-4 rounded-lg shadow">
+          <h2 className="text-lg font-bold">Bajo Stock</h2>
+          <p className="text-2xl font-semibold text-red-600">{stats.bajoStock}</p>
         </div>
       </div>
-      <div className="mt-6">
-        <h2 className="text-xl font-bold text-acento mb-4">Últimos pedidos</h2>
-        <table className="w-full bg-secundario rounded-lg shadow">
+      <h2 className="text-xl font-bold mb-4">Últimos Pedidos</h2>
+      {pedidos.length > 0 ? (
+        <table className="w-full bg-white rounded-lg shadow">
           <thead>
-            <tr className="text-left border-b border-gris">
-              <th className="p-4">ID</th>
-              <th className="p-4">Cliente</th>
-              <th className="p-4">Total</th>
-              <th className="p-4">Fecha</th>
+            <tr className="bg-gray-100">
+              <th className="p-2 text-left">ID</th>
+              <th className="p-2 text-left">Usuario</th>
+              <th className="p-2 text-left">Total</th>
             </tr>
           </thead>
           <tbody>
             {pedidos.map((pedido) => (
-              <tr key={pedido.id} className="border-b border-gris">
-                <td className="p-4">{pedido.id}</td>
-                <td className="p-4">{pedido.cliente}</td>
-                <td className="p-4">${pedido.total}</td>
-                <td className="p-4">{new Date(pedido.fecha).toLocaleDateString()}</td>
+              <tr key={pedido.id} className="hover:bg-gray-50">
+                <td className="p-2">{pedido.id}</td>
+                <td className="p-2">{pedido.usuario}</td>
+                <td className="p-2">${pedido.total}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
+      ) : (
+        <p className="text-gray-500">No hay pedidos recientes.</p>
+      )}
     </div>
   );
 }
