@@ -28,8 +28,7 @@ class Rol(db.Model):
     fecha_creacion = db.Column('FechaCreacion', db.DateTime, nullable=False, default=datetime.utcnow)
     
     # Relaciones
-    # La relación con UsuarioRoles se definirá cuando creemos ese modelo
-    # usuario_roles = db.relationship('UsuarioRol', backref='rol', lazy=True)
+    usuarios = db.relationship('UsuarioRol', back_populates='rol', lazy=True)
     
     def __repr__(self):
         """Representación en string del objeto Rol"""
@@ -38,10 +37,6 @@ class Rol(db.Model):
     def to_dict(self):
         """
         Convierte el objeto Rol a un diccionario
-        Útil para serializar a JSON en las APIs
-        
-        Returns:
-            dict: Diccionario con los datos del rol
         """
         return {
             'id_rol': self.id_rol,

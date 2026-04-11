@@ -10,8 +10,8 @@ class UsuarioRol(db.Model):
     id_rol = db.Column('IdRol', db.Integer, db.ForeignKey('Roles.IdRol'), primary_key=True)
 
     # Relaciones (activar en fase posterior)
-    # usuario = db.relationship('Usuario', back_populates='roles')
-    # rol = db.relationship('Rol', back_populates='usuarios')
+    usuario = db.relationship('Usuario', back_populates='roles')
+    rol = db.relationship('Rol', back_populates='usuarios')
 
     def __repr__(self):
         return f'<UsuarioRol usuario={self.id_usuario} rol={self.id_rol}>'
@@ -19,5 +19,6 @@ class UsuarioRol(db.Model):
     def to_dict(self):
         return {
             'id_usuario': self.id_usuario,
-            'id_rol': self.id_rol
+            'id_rol': self.id_rol,
+            'rol_nombre': self.rol.nombre if self.rol else None  # Incluye el nombre del rol asociado
         }

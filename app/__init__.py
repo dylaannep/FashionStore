@@ -44,11 +44,19 @@ def create_app(config_name='default'):
     jwt.init_app(app)
     # Configurar CORS para permitir cualquier origen durante el desarrollo
     CORS(app,
-         resources={r"/api/*": {"origins": "*"}},
+         resources={r"/api/*": {"origins": "http://localhost:5173"}},
          supports_credentials=True,
-         allow_headers=["Authorization", "Content-Type"],
-         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+         allow_headers=["Authorization", "Content-Type", "X-Requested-With"],
+         expose_headers=["Authorization"],
+         methods=["GET", "POST", "PUT", "DELETE"]
     )
+
+    # Responder a solicitudes OPTIONS para preflight
+    @app.after_request
+    def after_request(response):
+        if response.status_code == 405 and request.method == "OPTIONS":
+            response.status_code = 200
+        return response
 
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):

@@ -8,7 +8,7 @@ const CategoriasPage = () => {
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ nombre: '' });
+  const [formData, setFormData] = useState({ nombre: '', descripcion: '', activo: true });
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ const CategoriasPage = () => {
   };
 
   const handleEdit = (categoria) => {
-    setFormData({ nombre: categoria.nombre });
+    setFormData({ nombre: categoria.nombre, descripcion: categoria.descripcion, activo: categoria.activo });
     setEditingId(categoria.id);
     setModalOpen(true);
   };
@@ -54,7 +54,7 @@ const CategoriasPage = () => {
       }
       fetchCategorias();
       setModalOpen(false);
-      setFormData({ nombre: '' });
+      setFormData({ nombre: '', descripcion: '', activo: true });
       setEditingId(null);
     } catch (error) {
       console.error('Error saving categoria:', error);
@@ -79,11 +79,29 @@ const CategoriasPage = () => {
       />
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? 'Editar Categoría' : 'Nueva Categoría'}>
         <form onSubmit={handleSubmit}>
-          <FormField
-            label="Nombre"
-            value={formData.nombre}
-            onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-          />
+          <FormField label="Nombre">
+            <input
+              type="text"
+              value={formData.nombre}
+              onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+              className="input"
+            />
+          </FormField>
+          <FormField label="Descripción">
+            <textarea
+              value={formData.descripcion}
+              onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+              className="textarea"
+            />
+          </FormField>
+          <FormField label="Activo">
+            <input
+              type="checkbox"
+              checked={formData.activo}
+              onChange={(e) => setFormData({ ...formData, activo: e.target.checked })}
+              className="checkbox"
+            />
+          </FormField>
           <button type="submit" className="bg-acento text-white px-4 py-2 rounded mt-4">
             Guardar
           </button>

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const FormField = ({ label, error, children }) => {
+const FormField = ({ label, error = null, children = null }) => {
   return (
     <div className="mb-4">
       <label className="block text-primario font-medium mb-1">{label}</label>
@@ -19,11 +19,7 @@ const FormField = ({ label, error, children }) => {
 FormField.propTypes = {
   label: PropTypes.string.isRequired,
   error: PropTypes.string,
-  children: PropTypes.node.isRequired,
-};
-
-FormField.defaultProps = {
-  error: null,
+  children: PropTypes.node,
 };
 
 export default FormField;

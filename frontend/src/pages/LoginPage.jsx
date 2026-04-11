@@ -1,24 +1,32 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
-  const { login, isLoading } = useAuthStore();
+  const { login, isLoading, isAdmin } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    console.log('Attempting login with:', { email, password }); // Debug: Log credentials
     try {
       await login(email, password);
-      // Redirigir al dashboard si el usuario es administrador
-      if (usuario?.roles?.some(r => r.nombre === 'Administrador')) {
-        window.location.href = '/admin/dashboard';
+      const { isAdmin: updatedIsAdmin } = useAuthStore.getState(); // Obtener el estado actualizado
+      console.log('Login successful. isAdmin:', updatedIsAdmin); // Debug: Log isAdmin state actualizado
+      // Redirigir según el rol del usuario
+      if (updatedIsAdmin) {
+        console.log('Redirecting to /admin/dashboard'); // Debug: Log redirection
+        navigate('/admin/dashboard');
       } else {
-        window.location.href = '/';
+        console.log('Redirecting to /'); // Debug: Log redirection
+        navigate('/');
       }
     } catch (err) {
+      console.error('Login failed:', err.response?.data?.error || err.message); // Debug: Log error
       setError(err.response?.data?.error || 'Error al iniciar sesión');
     }
   };
