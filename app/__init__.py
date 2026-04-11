@@ -42,9 +42,9 @@ def create_app(config_name='default'):
     login_manager.init_app(app)
     mail.init_app(app)
     jwt.init_app(app)
-    # Configurar CORS solo para rutas /api/ y origen del frontend
+    # Configurar CORS para permitir cualquier origen durante el desarrollo
     CORS(app,
-         resources={r"/api/*": {"origins": "http://localhost:5173"}},
+         resources={r"/api/*": {"origins": "*"}},
          supports_credentials=True,
          allow_headers=["Authorization", "Content-Type"],
          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]

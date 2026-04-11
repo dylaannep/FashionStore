@@ -12,7 +12,12 @@ export default function LoginPage() {
     setError('');
     try {
       await login(email, password);
-      // Redirección automática por el store
+      // Redirigir al dashboard si el usuario es administrador
+      if (usuario?.roles?.some(r => r.nombre === 'Administrador')) {
+        window.location.href = '/admin/dashboard';
+      } else {
+        window.location.href = '/';
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Error al iniciar sesión');
     }

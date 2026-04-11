@@ -1,0 +1,17 @@
+/* Archivo CSS vacío para inicializar estilos globales */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos globales adicionales */
+body {
+  @apply bg-fondo text-primario font-sans;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply text-acento;
+}
+
+button {
+  @apply bg-acento text-primario px-4 py-2 rounded hover:bg-acento2;
+}

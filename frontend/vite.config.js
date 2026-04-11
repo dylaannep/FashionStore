@@ -5,13 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    strictPort: true, // Forzar el uso del puerto 5173
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5001',
-        changeOrigin: true,
-        secure: false
-      }
-    }
+    strictPort: false, // Deshabilitar strictPort para buscar un puerto disponible automáticamente
+    proxy: {}
   }
 });

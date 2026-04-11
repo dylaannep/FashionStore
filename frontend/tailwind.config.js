@@ -23,5 +23,8 @@ module.exports = {
       },
     },
   },
-  plugins: [require('@shadcn/ui')],
+  plugins: [
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+  ],
 };

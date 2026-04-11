@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { LogOut, LayoutDashboard, ShoppingBag, Boxes, Users, List, Layers, Package, ClipboardList, Palette, Ruler, Settings } from 'lucide-react';
 
@@ -24,6 +24,7 @@ export default function AdminLayout() {
   const { usuario, logout } = useAuthStore();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
+  const [productosOpen, setProductosOpen] = React.useState(false);
 
   return (
     <div className="flex min-h-screen bg-fondo">
@@ -36,17 +37,24 @@ export default function AdminLayout() {
         <nav className="mt-4">
           {navItems.map((item, idx) => (
             <div key={idx}>
-              <Link to={item.to} className="flex items-center gap-3 px-4 py-2 hover:bg-fondo rounded transition">
+              <NavLink
+                to={item.to}
+                className={({ isActive }) => `flex items-center gap-3 px-4 py-2 hover:bg-acento/10 rounded transition ${isActive ? 'bg-acento/10 text-acento border-l-2 border-acento' : ''}`}
+              >
                 {item.icon}
                 {sidebarOpen && <span>{item.label}</span>}
-              </Link>
+              </NavLink>
               {item.sub && sidebarOpen && (
                 <div className="ml-8">
                   {item.sub.map((sub, subIdx) => (
-                    <Link key={subIdx} to={sub.to} className="flex items-center gap-2 px-2 py-1 text-sm hover:bg-fondo rounded transition">
+                    <NavLink
+                      key={subIdx}
+                      to={sub.to}
+                      className={({ isActive }) => `flex items-center gap-2 px-2 py-1 text-sm hover:bg-acento/10 rounded transition ${isActive ? 'bg-acento/10 text-acento' : ''}`}
+                    >
                       {sub.icon}
                       <span>{sub.label}</span>
-                    </Link>
+                    </NavLink>
                   ))}
                 </div>
               )}
