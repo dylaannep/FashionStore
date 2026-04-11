@@ -48,7 +48,7 @@ def create_app(config_name='default'):
          supports_credentials=True,
          allow_headers=["Authorization", "Content-Type", "X-Requested-With"],
          expose_headers=["Authorization"],
-         methods=["GET", "POST", "PUT", "DELETE"]
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     )
 
     # Responder a solicitudes OPTIONS para preflight
