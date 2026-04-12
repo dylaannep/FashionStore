@@ -34,8 +34,10 @@ def create_categoria():
         return jsonify(nueva.to_dict()), 201
     except ValueError as ve:
         return jsonify({'error': str(ve)}), 400
-    except IntegrityError:
-        return jsonify({'error': 'Conflicto en la base de datos'}), 409
+    except IntegrityError as e:
+        if 'UNIQUE constraint failed' in str(e.orig):
+            return jsonify({'error': 'El nombre de la categoría ya está en uso. Por favor, elige otro.'}), 409
+        return jsonify({'error': 'El nombre de la categoría ya está en uso. Por favor, elige otro.'}), 409
     except Exception:
         return jsonify({'error': 'Error interno del servidor'}), 500
 

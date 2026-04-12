@@ -1,41 +1,79 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { AiOutlineClose as Close } from 'react-icons/ai';
+import {
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  Button,
+  IconButton,
+  Typography,
+} from '@material-tailwind/react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
-const Modal = ({ isOpen, onClose, title, children, size }) => {
+const Modal = ({ isOpen, onClose, onSubmit, title, children, size, submitLabel }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'; // Evitar scroll en el fondo
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto'; // Restaurar scroll al desmontar
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
-  const sizeClasses = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-  };
-
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className={`bg-secundario rounded-xl shadow-2xl w-full ${sizeClasses[size]} border border-borde`}>
-        <div className="flex justify-between items-center px-6 py-4 border-b border-borde">
-          <h2 className="text-lg font-semibold text-primario">{title}</h2>
-          <button onClick={onClose} className="text-gris hover:text-primario hover:bg-gray-100 rounded-lg p-1.5 transition-colors">
-            <Close size={18} />
-          </button>
-        </div>
-        <div className="px-6 py-5">{children}</div>
-      </div>
-    </div>
+    <Dialog
+      size={size}
+      open={isOpen}
+      handler={onClose}
+      className="p-4"
+      role="dialog" // Usar role adecuado para accesibilidad
+      aria-modal="true" // Indicar que es un modal
+    >
+      <DialogHeader className="relative m-0 block">
+        <Typography variant="h4" color="blue-gray">
+          {title}
+        </Typography>
+        <IconButton
+          size="sm"
+          variant="text"
+          className="!absolute right-3.5 top-3.5"
+          onClick={onClose}
+        >
+          <XMarkIcon className="h-4 w-4 stroke-2" />
+        </IconButton>
+      </DialogHeader>
+      <DialogBody className="space-y-4 pb-6">{children}</DialogBody>
+      <DialogFooter>
+        <Button className="mr-2" onClick={onClose} variant="outlined" color="red">
+          Cancelar
+        </Button>
+        <Button onClick={onSubmit} variant="gradient" color="blue">
+          {submitLabel || 'Guardar'}
+        </Button>
+      </DialogFooter>
+    </Dialog>
   );
 };
 
 Modal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
-  size: PropTypes.oneOf(['sm', 'md', 'lg']),
+  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl']),
+  submitLabel: PropTypes.string,
 };
 
 Modal.defaultProps = {
   size: 'md',
+  submitLabel: 'Guardar',
 };
 
 export default Modal;

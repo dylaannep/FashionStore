@@ -9,7 +9,8 @@ from sqlalchemy import func
 class SubcategoriaService:
     @staticmethod
     def get_all():
-        return SubCategoria.query.filter_by(activo=True).all()
+        # Mejor devolver todas
+        return SubCategoria.query.all()
 
     @staticmethod
     def get_by_id(id_subcategoria):

@@ -9,26 +9,11 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  @apply text-acento;
+  @apply text-gris;
 }
 
-button {
-  /* Sin estilos globales - cada botón tiene sus propias clases */
-}
+/* Eliminación de estilos globales de botones para evitar conflictos */
+/* Los estilos de botones deben ser definidos dentro de los componentes reutilizables */
 
-/* Estilos de botón por tipo */
-.btn-primary {
-  @apply bg-acento hover:bg-acentoHover text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors inline-flex items-center gap-2;
-}
-
-.btn-secondary {
-  @apply bg-gray-100 hover:bg-gray-200 text-primario px-4 py-2.5 rounded-lg font-medium text-sm transition-colors;
-}
-
-.btn-danger {
-  @apply bg-amber-50 hover:bg-amber-100 text-warning border border-amber-200 px-3 py-1.5 rounded-lg text-xs;
-}
-
-.btn-success {
-  @apply bg-acento hover:bg-acentoHover text-white px-5 py-2.5 rounded-lg font-medium text-sm w-full;
-}
+/* Eliminación de clases hover y fondo inconsistentes */
+/* Aseguramos que las tablas y modales usen estilos de Material Tailwind */

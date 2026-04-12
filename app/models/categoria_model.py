@@ -45,7 +45,7 @@ class Categoria(db.Model):
         return {
             'id_categoria': self.id_categoria,
             'nombre': self.nombre,
-            'descripcion': self.descripcion,
+            'descripcion': self.descripcion,  # Agregado para incluir la descripción
             'activo': self.activo,
             'fecha_creacion': self.fecha_creacion.isoformat() if self.fecha_creacion else None
         }

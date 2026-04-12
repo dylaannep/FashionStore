@@ -9,7 +9,8 @@ from sqlalchemy import func
 class CategoriaService:
     @staticmethod
     def get_all():
-        return Categoria.query.filter_by(activo=True).all()
+        # Mejor devolver todas las categorias
+        return Categoria.query.all()
 
     @staticmethod
     def get_by_id(id_categoria):
