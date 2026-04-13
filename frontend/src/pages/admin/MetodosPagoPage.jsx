@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { coloresService } from '../../api/services';
+import { metodosPagoService } from '../../api/services';
 import DataTable from '../../components/ui/DataTable';
 import Modal from '../../components/ui/Modal';
 import FormField from '../../components/ui/FormField';
 
-const ColoresPage = () => {
-  const [colores, setColores] = useState([]);
+const MetodosPagoPage = () => {
+  const [metodosPago, setMetodosPago] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({ nombre: '', activo: true });
@@ -13,16 +13,16 @@ const ColoresPage = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    fetchColores();
+    fetchMetodosPago();
   }, []);
 
-  const fetchColores = async () => {
+  const fetchMetodosPago = async () => {
     setLoading(true);
     try {
-      const response = await coloresService.getAll();
-      setColores(response.data);
+      const response = await metodosPagoService.getAll();
+      setMetodosPago(response.data);
     } catch (error) {
-      console.error('Error fetching colores:', error);
+      console.error('Error fetching métodos de pago:', error);
     } finally {
       setLoading(false);
     }
@@ -33,7 +33,7 @@ const ColoresPage = () => {
       nombre: item.nombre || '',
       activo: item.activo !== undefined ? item.activo : true,
     });
-    setEditingId(item.id_color);
+    setEditingId(item.id_metodo_pago);
     setModalOpen(true);
   };
 
@@ -52,22 +52,22 @@ const ColoresPage = () => {
 
     try {
       if (editingId) {
-        await coloresService.update(editingId, formData);
+        await metodosPagoService.update(editingId, formData);
       } else {
-        await coloresService.create(formData);
+        await metodosPagoService.create(formData);
       }
-      fetchColores();
+      fetchMetodosPago();
       handleModalClose();
     } catch (error) {
-      console.error('Error saving color:', error);
-      setErrors({ general: 'Ocurrió un error al guardar el color' });
+      console.error('Error saving método de pago:', error);
+      setErrors({ general: 'Ocurrió un error al guardar el método de pago' });
     }
   };
 
   const handleToggleActive = async (item) => {
     try {
-      await coloresService.update(item.id_color, { activo: !item.activo });
-      fetchColores();
+      await metodosPagoService.update(item.id_metodo_pago, { activo: !item.activo });
+      fetchMetodosPago();
     } catch (error) {
       console.error('Error toggling active state:', error);
     }
@@ -75,19 +75,19 @@ const ColoresPage = () => {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Colores</h1>
+      <h1 className="text-2xl font-bold mb-4">Métodos de Pago</h1>
       <button
         className="bg-acento text-white px-4 py-2 rounded mb-4"
         onClick={() => setModalOpen(true)}
       >
-        Nuevo Color
+        Nuevo Método de Pago
       </button>
       <DataTable
         columns={[
           { key: 'nombre', label: 'Nombre' },
           { key: 'activo', label: 'Activo', render: (activo) => (activo ? 'Sí' : 'No') },
         ]}
-        data={colores}
+        data={metodosPago}
         onEdit={handleEdit}
         onToggleActive={handleToggleActive}
         loading={loading}
@@ -96,8 +96,8 @@ const ColoresPage = () => {
         isOpen={modalOpen}
         onClose={handleModalClose}
         onSubmit={handleSubmit}
-        title={editingId ? 'Editar Color' : 'Nuevo Color'}
-        submitLabel={editingId ? 'Guardar cambios' : 'Crear color'}
+        title={editingId ? 'Editar Método de Pago' : 'Nuevo Método de Pago'}
+        submitLabel={editingId ? 'Guardar cambios' : 'Crear método de pago'}
         size="md"
       >
         <FormField label="Nombre">
@@ -108,7 +108,7 @@ const ColoresPage = () => {
               setFormData({ ...formData, nombre: e.target.value });
               if (errors.nombre) setErrors({ ...errors, nombre: '' });
             }}
-            placeholder="Ingrese el nombre del color"
+            placeholder="Ingrese el nombre del método de pago"
             className={`w-full px-3 py-2 rounded-lg border text-sm bg-white placeholder-gray-400 
               focus:outline-none focus:ring-2 transition-colors ${
               errors.nombre
@@ -151,4 +151,4 @@ const ColoresPage = () => {
   );
 };
 
-export default ColoresPage;
+export default MetodosPagoPage;

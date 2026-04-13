@@ -12,7 +12,7 @@ def list_subcategorias():
         subcategorias = SubcategoriaService.get_by_categoria(categoria_id)
     else:
         subcategorias = SubcategoriaService.get_all()
-    return jsonify([s for s in subcategorias]), 200
+    return jsonify([s.to_dict() for s in subcategorias]), 200
 
 @subcategoria_bp.route('/<int:id>', methods=['GET'])
 @jwt_required()
@@ -20,14 +20,14 @@ def get_subcategoria(id):
     subcategoria = SubcategoriaService.get_by_id(id)
     if not subcategoria:
         return jsonify({'error': 'SubCategoria no encontrada'}), 404
-    return jsonify(subcategoria), 200
+    return jsonify(subcategoria.to_dict()), 200
 
 @subcategoria_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_subcategoria():
     try:
         subcategoria = SubcategoriaService.create(request.json)
-        return jsonify(subcategoria), 201
+        return jsonify(subcategoria.to_dict()), 201
     except ValueError as ve:
         return jsonify({'error': str(ve)}), 400
     except IntegrityError:
@@ -42,7 +42,7 @@ def update_subcategoria(id):
         subcategoria = SubcategoriaService.update(id, request.json)
         if not subcategoria:
             return jsonify({'error': 'SubCategoria no encontrada'}), 404
-        return jsonify(subcategoria), 200
+        return jsonify(subcategoria.to_dict()), 200
     except ValueError as ve:
         return jsonify({'error': str(ve)}), 400
     except IntegrityError:

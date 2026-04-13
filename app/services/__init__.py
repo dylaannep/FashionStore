@@ -15,6 +15,7 @@ from app.services.inventario_service import InventarioService
 from app.services.movimiento_inventario_service import MovimientoInventarioService
 from app.services.pedido_service import PedidoService
 from app.services.detalle_pedido_service import DetallePedidoService
+from app.services.talla_service import TallaService
 
 
-__all__ = []
+__all__ = ['RolService', 'ColorService', 'UsuarioService', 'UsuarioRolService', 'CategoriaService', 'SubcategoriaService', 'ProductoService', 'ProductoVarianteService', 'InventarioService', 'MovimientoInventarioService', 'PedidoService', 'DetallePedidoService', 'TallaService']

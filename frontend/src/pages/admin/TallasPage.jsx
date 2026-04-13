@@ -10,6 +10,7 @@ const TallasPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({ nombre: '' });
   const [editingId, setEditingId] = useState(null);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     fetchTallas();
@@ -47,16 +48,19 @@ const TallasPage = () => {
     }
   };
 
-  const handleToggleActive = async (item) => {
-    const accion = item.activo ? 'inactivar' : 'activar';
-    if (window.confirm(`¿Deseas ${accion} "${item.nombre}"?`)) {
-      await tallasService.update(item.id_talla, { activo: !item.activo });
-      fetchTallas();
-    }
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setFormData({ nombre: '' });
+    setErrors({});
+    setEditingId(null);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+    if (!formData.nombre) {
+      setErrors({ nombre: 'El nombre es obligatorio' });
+      return;
+    }
+
     try {
       if (editingId) {
         await tallasService.update(editingId, formData);
@@ -64,11 +68,19 @@ const TallasPage = () => {
         await tallasService.create(formData);
       }
       fetchTallas();
-      setModalOpen(false);
-      setFormData({ nombre: '' });
-      setEditingId(null);
+      handleModalClose();
     } catch (error) {
       console.error('Error saving talla:', error);
+      setErrors({ general: 'Ocurrió un error al guardar la talla' });
+    }
+  };
+
+  const handleToggleActive = async (item) => {
+    try {
+      await tallasService.update(item.id_talla, { activo: !item.activo });
+      fetchTallas();
+    } catch (error) {
+      console.error('Error toggling active state:', error);
     }
   };
 
@@ -82,23 +94,69 @@ const TallasPage = () => {
         Nueva Talla
       </button>
       <DataTable
-        columns={[{ key: 'nombre', label: 'Nombre' }]}
+        columns={[
+          { key: 'nombre', label: 'Nombre' },
+          { key: 'activo', label: 'Activo', render: (activo) => (activo ? 'Sí' : 'No') },
+        ]}
         data={tallas}
         onEdit={handleEdit}
-        onDelete={handleDelete}
+        onToggleActive={handleToggleActive}
         loading={loading}
       />
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? 'Editar Talla' : 'Nueva Talla'}>
-        <form onSubmit={handleSubmit}>
-          <FormField
-            label="Nombre"
+      <Modal
+        isOpen={modalOpen}
+        onClose={handleModalClose}
+        onSubmit={handleSubmit}
+        title={editingId ? 'Editar Talla' : 'Nueva Talla'}
+        submitLabel={editingId ? 'Guardar cambios' : 'Crear talla'}
+        size="md"
+      >
+        <FormField label="Nombre">
+          <input
+            type="text"
             value={formData.nombre}
-            onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+            onChange={(e) => {
+              setFormData({ ...formData, nombre: e.target.value });
+              if (errors.nombre) setErrors({ ...errors, nombre: '' });
+            }}
+            placeholder="Ingrese el nombre de la talla"
+            className={`w-full px-3 py-2 rounded-lg border text-sm bg-white placeholder-gray-400 
+              focus:outline-none focus:ring-2 transition-colors ${
+              errors.nombre
+                ? 'border-red-400 focus:ring-red-200'
+                : 'border-gray-300 focus:ring-blue-200 focus:border-blue-400'
+            }`}
           />
-          <button type="submit" className="bg-acento text-white px-4 py-2 rounded mt-4">
-            Guardar
-          </button>
-        </form>
+          {errors.nombre && (
+            <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+              <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
+              </svg>
+              {errors.nombre}
+            </p>
+          )}
+        </FormField>
+
+        <FormField label="Activo">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={formData.activo}
+              onChange={(e) => setFormData({ ...formData, activo: e.target.checked })}
+              className="checkbox checkbox-primary"
+            />
+            <span className="text-sm text-gray-700">Activo</span>
+          </div>
+        </FormField>
+
+        {errors.general && (
+          <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
+            </svg>
+            {errors.general}
+          </div>
+        )}
       </Modal>
     </div>
   );

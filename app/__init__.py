@@ -112,6 +112,9 @@ def register_blueprints(flask_app):
     from app.routes.color_routes import color_bp
     flask_app.register_blueprint(color_bp)
 
+    from app.routes.talla_routes import talla_bp
+    flask_app.register_blueprint(talla_bp)
+
     # Registrar blueprint de usuarios
     from app.routes.usuario_routes import usuario_bp
     flask_app.register_blueprint(usuario_bp)
