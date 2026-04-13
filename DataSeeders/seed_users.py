@@ -8,33 +8,66 @@ from app import create_app, db
 from app.models import Usuario, Rol, UsuarioRol
 from werkzeug.security import generate_password_hash
 
-app = create_app()
+def seed_users():
+    """Seeder para crear usuarios y asignar roles."""
+    app = create_app()
 
-with app.app_context():
-    # Crear usuarios
-    admin_user = Usuario(
-        nombre='Admin',
-        email='admin@example.com'
-    )
-    regular_user = Usuario(
-        nombre='User',
-        email='user@example.com'
-    )
+    with app.app_context():
+        # Verificar si ya existen usuarios en la base de datos
+        existing_users = Usuario.query.all()
+        if existing_users:
+            print(f"⚠️  Ya existen {len(existing_users)} usuarios en la base de datos.")
+            response = input("¿Deseas continuar? (Los usuarios duplicados se ignorarán) (s/n): ")
+            if response.lower() != 's':
+                print("❌ Proceso cancelado.")
+                return
 
-    # Establecer contraseñas antes de agregar los usuarios a la sesión
-    admin_user.set_password('admin123')
-    regular_user.set_password('user123')
+        # Usuarios a crear
+        usuarios = [
+            {
+                'nombre': 'Admin',
+                'email': 'admin@example.com',
+                'password': 'admin123',
+                'roles': ['Administrador']
+            },
+            {
+                'nombre': 'User',
+                'email': 'user@example.com',
+                'password': 'user123',
+                'roles': ['Usuario']
+            }
+        ]
 
-    db.session.add(admin_user)
-    db.session.add(regular_user)
-    db.session.commit()
+        usuarios_creados = 0
+        usuarios_existentes = 0
 
-    # Asignar roles a los usuarios
-    admin_role = Rol.query.filter_by(nombre='Administrador').first()
-    user_role = Rol.query.filter_by(nombre='Usuario').first()
+        for usuario_data in usuarios:
+            usuario = Usuario.query.filter_by(email=usuario_data['email']).first()
+            if usuario:
+                print(f"⏭️  Usuario '{usuario_data['email']}' ya existe (ID: {usuario.id_usuario})")
+                usuarios_existentes += 1
+            else:
+                usuario = Usuario(
+                    nombre=usuario_data['nombre'],
+                    email=usuario_data['email']
+                )
+                usuario.set_password(usuario_data['password'])
+                db.session.add(usuario)
+                db.session.commit()
+                print(f"✅ Usuario '{usuario_data['email']}' creado exitosamente (ID: {usuario.id_usuario})")
+                usuarios_creados += 1
 
-    db.session.add(UsuarioRol(id_usuario=admin_user.id_usuario, id_rol=admin_role.id_rol))
-    db.session.add(UsuarioRol(id_usuario=regular_user.id_usuario, id_rol=user_role.id_rol))
-    db.session.commit()
+            # Asignar roles
+            for rol_nombre in usuario_data['roles']:
+                rol = Rol.query.filter_by(nombre=rol_nombre).first()
+                if rol and not UsuarioRol.query.filter_by(id_usuario=usuario.id_usuario, id_rol=rol.id_rol).first():
+                    db.session.add(UsuarioRol(id_usuario=usuario.id_usuario, id_rol=rol.id_rol))
+                    db.session.commit()
+                    print(f"   🔗 Rol '{rol_nombre}' asignado al usuario '{usuario.email}'")
 
-    print("Usuarios creados exitosamente.")
+        print("\n" + "=" * 60)
+        print(f"✅ Proceso completado:\n   - Usuarios creados: {usuarios_creados}\n   - Usuarios ya existentes: {usuarios_existentes}")
+        print("=" * 60)
+
+if __name__ == '__main__':
+    seed_users()

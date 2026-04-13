@@ -15,8 +15,9 @@ class Usuario(db.Model):
     activo = db.Column('Activo', db.Boolean, nullable=False, default=True)
     fecha_creacion = db.Column('FechaCreacion', db.DateTime, nullable=False, default=datetime.utcnow)
 
-    # Relaciones (activar en fase posterior)
+    # Relaciones
     roles = db.relationship('UsuarioRol', back_populates='usuario', lazy=True)
+    pedidos = db.relationship('Pedido', back_populates='usuario', lazy=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

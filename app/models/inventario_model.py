@@ -13,8 +13,8 @@ class Inventario(db.Model):
     stock_minimo = db.Column('StockMinimo', db.Integer, nullable=False, default=0)
     ultima_actualizacion = db.Column('UltimaActualizacion', db.DateTime, nullable=False, default=datetime.utcnow)
 
-    # Relaciones (activar en fase posterior)
-    # producto_variante = db.relationship('ProductoVariante', back_populates='inventario', uselist=False)
+    # Relaciones
+    producto_variante = db.relationship('ProductoVariante', back_populates='inventario', uselist=False)
 
     def __repr__(self):
         return f'<Inventario {self.id_inventario} Variante={self.id_producto_variante}>'

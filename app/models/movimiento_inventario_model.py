@@ -15,7 +15,7 @@ class MovimientoInventario(db.Model):
     fecha_movimiento = db.Column('FechaMovimiento', db.DateTime, nullable=False, default=datetime.utcnow)
 
     # Relaciones (activar en fase posterior)
-    # producto_variante = db.relationship('ProductoVariante')
+    producto_variante = db.relationship('ProductoVariante')
 
     def __repr__(self):
         return f'<MovimientoInventario {self.id_movimiento} Tipo={self.tipo_movimiento}>'

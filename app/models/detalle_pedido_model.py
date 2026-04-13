@@ -14,9 +14,9 @@ class DetallePedido(db.Model):
     precio_unitario = db.Column('PrecioUnitario', db.Numeric(10,2), nullable=False)
     subtotal = db.Column('SubTotal', db.Numeric(12,2), nullable=False)
 
-    # Relaciones (activar en fase posterior)
-    # pedido = db.relationship('Pedido', back_populates='detalles')
-    # producto_variante = db.relationship('ProductoVariante')
+    # Relaciones
+    pedido = db.relationship('Pedido', back_populates='detalles')
+    producto_variante = db.relationship('ProductoVariante')
 
     def __repr__(self):
         return f'<DetallePedido {self.id_detalle} Pedido={self.id_pedido}>'

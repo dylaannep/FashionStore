@@ -9,6 +9,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from DataSeeders.seed_roles import seed_roles
 from DataSeeders.seed_users import seed_users
+from DataSeeders.seed_colores import seed_colores
+from DataSeeders.seed_tallas import seed_tallas
+from DataSeeders.seed_metodos_pago import seed_metodos_pago
+from DataSeeders.seed_estados_pedido import seed_estados_pedido
+from DataSeeders.seed_subcategorias import seed_subcategorias
 
 
 def run_all_seeders():
@@ -20,12 +25,13 @@ def run_all_seeders():
     seeders = [
         ('Roles', seed_roles),
         ('Usuarios', seed_users),
+        ('Colores', seed_colores),
+        ('Tallas', seed_tallas),
+        ('Métodos de Pago', seed_metodos_pago),
+        ('Estados de Pedido', seed_estados_pedido),
+        ('Subcategorías', seed_subcategorias),
         # Agrega más seeders aquí a medida que los crees
         # ('Categorías', seed_categorias),
-        # ('Colores', seed_colores),
-        # ('Tallas', seed_tallas),
-        # ('Estados de Pedido', seed_estados_pedido),
-        # ('Métodos de Pago', seed_metodos_pago),
     ]
     
     total = len(seeders)

@@ -21,11 +21,11 @@ class ProductoVariante(db.Model):
         db.UniqueConstraint('IdProducto', 'IdColor', 'IdTalla', name='UQ_Producto_Color_Talla'),
     )
 
-    # Relaciones (activar en fase posterior)
-    # producto = db.relationship('Producto', back_populates='variantes')
-    # color = db.relationship('Color')
-    # talla = db.relationship('Talla')
-    # inventario = db.relationship('Inventario', back_populates='producto_variante', uselist=False)
+    # Relaciones
+    producto = db.relationship('Producto', back_populates='variantes')
+    color = db.relationship('Color')
+    talla = db.relationship('Talla')
+    inventario = db.relationship('Inventario', back_populates='producto_variante', uselist=False)
 
     def __repr__(self):
         return f'<ProductoVariante {self.id_producto_variante} SKU={self.sku}>'

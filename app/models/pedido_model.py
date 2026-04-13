@@ -15,11 +15,11 @@ class Pedido(db.Model):
     fecha_pedido = db.Column('FechaPedido', db.DateTime, nullable=False, default=datetime.utcnow)
     total = db.Column('Total', db.Numeric(12,2), nullable=False)
 
-    # Relaciones (activar en fase posterior)
-    # usuario = db.relationship('Usuario', back_populates='pedidos')
-    # estado = db.relationship('EstadoPedido')
-    # metodo_pago = db.relationship('MetodoPago')
-    # detalles = db.relationship('DetallePedido', back_populates='pedido', lazy=True)
+    # Relaciones
+    usuario = db.relationship('Usuario', back_populates='pedidos')
+    estado = db.relationship('EstadoPedido')
+    metodo_pago = db.relationship('MetodoPago')
+    detalles = db.relationship('DetallePedido', back_populates='pedido', lazy=True)
 
     def __repr__(self):
         return f'<Pedido {self.id_pedido} Usuario={self.id_usuario}>'

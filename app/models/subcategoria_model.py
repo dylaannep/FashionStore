@@ -14,9 +14,9 @@ class SubCategoria(db.Model):
     activo = db.Column('Activo', db.Boolean, nullable=False, default=True)
     fecha_creacion = db.Column('FechaCreacion', db.DateTime, nullable=False, default=datetime.utcnow)
 
-    # Relaciones (activar en fase posterior)
-    # categoria = db.relationship('Categoria', back_populates='subcategorias')
-    # productos = db.relationship('Producto', back_populates='subcategoria', lazy=True)
+    # Relaciones
+    categoria = db.relationship('Categoria', back_populates='subcategorias')
+    productos = db.relationship('Producto', back_populates='subcategoria', lazy=True)
 
     def __repr__(self):
         return f'<SubCategoria {self.id_subcategoria} - {self.nombre}>'

@@ -9,7 +9,7 @@ class UsuarioRol(db.Model):
     id_usuario = db.Column('IdUsuario', db.Integer, db.ForeignKey('Usuarios.IdUsuario'), primary_key=True)
     id_rol = db.Column('IdRol', db.Integer, db.ForeignKey('Roles.IdRol'), primary_key=True)
 
-    # Relaciones (activar en fase posterior)
+    # Relaciones
     usuario = db.relationship('Usuario', back_populates='roles')
     rol = db.relationship('Rol', back_populates='usuarios')
 

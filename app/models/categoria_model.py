@@ -28,8 +28,7 @@ class Categoria(db.Model):
     fecha_creacion = db.Column('FechaCreacion', db.DateTime, nullable=False, default=datetime.utcnow)
 
     # Relaciones
-    # La relación con Producto se definirá cuando ese modelo exista
-    # productos = db.relationship('Producto', backref='categoria', lazy=True)
+    subcategorias = db.relationship('SubCategoria', back_populates='categoria', lazy=True)
 
     def __repr__(self):
         """Representación en string del objeto Categoria"""
