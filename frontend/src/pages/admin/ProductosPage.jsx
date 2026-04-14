@@ -30,10 +30,15 @@ const ProductosPage = () => {
     }
   };
 
+  // Mejorar el dropdown de subcategorías para incluir el contexto de la categoría padre
   const fetchSubcategorias = async () => {
     try {
       const response = await subcategoriasService.getAll();
-      setSubcategorias(response.data);
+      const formattedSubcategorias = response.data.map((s) => ({
+        value: s.id_subcategoria,
+        label: `${s.categoria_nombre} - ${s.nombre}`,
+      }));
+      setSubcategorias(formattedSubcategorias);
     } catch (error) {
       console.error('Error fetching subcategorias:', error);
     }
@@ -72,6 +77,7 @@ const ProductosPage = () => {
     }
   };
 
+  // Manejo de errores del servidor en handleSubmit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -97,7 +103,11 @@ const ProductosPage = () => {
       fetchProductos();
       setModalOpen(false);
     } catch (error) {
-      console.error('Error submitting producto:', error);
+      if (error.response && error.response.data) {
+        setErrors(error.response.data.errors || {});
+      } else {
+        console.error('Error submitting producto:', error);
+      }
     }
   };
 
@@ -133,7 +143,7 @@ const ProductosPage = () => {
           <FormField
             label="Subcategoría"
             type="select"
-            options={subcategorias.map((s) => ({ value: s.id_subcategoria, label: s.nombre }))}
+            options={subcategorias}
             value={formData.id_subcategoria}
             onChange={(e) => setFormData({ ...formData, id_subcategoria: e.target.value })}
             error={errors.id_subcategoria}
@@ -143,6 +153,7 @@ const ProductosPage = () => {
             type="file"
             onChange={(e) => setFormData({ ...formData, imagen: e.target.files[0] })}
           />
+          {errors.imagen && <p className="text-red-500 text-sm">{errors.imagen}</p>}
           <button type="submit" className="bg-acento text-white px-4 py-2 rounded mt-4">
             Guardar
           </button>
