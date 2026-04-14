@@ -44,8 +44,12 @@ export const tallasService = {
 export const productosService = {
   getAll: () => api.get('/api/productos/'),
   getById: (id) => api.get(`/api/productos/${id}`),
-  create: (data) => api.post('/api/productos/', data),
-  update: (id, data) => api.put(`/api/productos/${id}`),
+  create: (data) => api.post('/api/productos/', data, {
+    headers: data instanceof FormData ? {} : { 'Content-Type': 'application/json' },
+  }),
+  update: (id, data) => api.put(`/api/productos/${id}`, data, {
+    headers: data instanceof FormData ? {} : { 'Content-Type': 'application/json' },
+  }),
   delete: (id) => api.delete(`/api/productos/${id}`),
 };
 

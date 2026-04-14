@@ -15,7 +15,7 @@ MAX_FILE_SIZE_MB = 5
 class ProductoService:
     @staticmethod
     def get_all():
-        return Producto.query.filter_by(activo=True).all()
+        return Producto.query.all()
 
     @staticmethod
     def get_by_id(id_producto):
@@ -28,6 +28,8 @@ class ProductoService:
         descripcion = payload.get('descripcion')
         marca = payload.get('marca')
         activo = payload.get('activo', True)
+        imagen = payload.get('imagen')
+        
         if not id_subcategoria or not SubCategoria.query.get(id_subcategoria):
             raise ValueError('La subcategoría especificada no existe.')
         if not nombre or not nombre.strip() or len(nombre.strip()) < 3:
@@ -40,11 +42,13 @@ class ProductoService:
             raise ValueError('La descripción no puede exceder 500 caracteres.')
         if Producto.query.filter(func.lower(Producto.nombre) == nombre.lower(), Producto.id_subcategoria == id_subcategoria).first():
             raise IntegrityError(None, None, 'Ya existe un producto con ese nombre en la subcategoría.')
+        
         prod = Producto(
             id_subcategoria=id_subcategoria,
             nombre=nombre.strip(),
             descripcion=descripcion.strip() if descripcion else None,
             marca=marca.strip() if marca else None,
+            imagen=imagen,
             activo=ProductoService._parse_bool(activo)
         )
         db.session.add(prod)
@@ -61,6 +65,8 @@ class ProductoService:
         descripcion = payload.get('descripcion')
         marca = payload.get('marca')
         activo = payload.get('activo')
+        imagen = payload.get('imagen')
+        
         if id_subcategoria is not None:
             if not SubCategoria.query.get(id_subcategoria):
                 raise ValueError('La nueva subcategoría no existe.')
@@ -83,6 +89,9 @@ class ProductoService:
             prod.marca = marca.strip() if marca else None
         if activo is not None:
             prod.activo = ProductoService._parse_bool(activo)
+        if imagen is not None:
+            prod.imagen = imagen
+        
         db.session.commit()
         return prod
 
