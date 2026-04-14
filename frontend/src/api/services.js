@@ -32,7 +32,11 @@ export const tallasService = {
   getAll: () => api.get('/api/tallas/'),
   getById: (id) => api.get(`/api/tallas/${id}`),
   create: (data) => api.post('/api/tallas/', data),
-  update: (id, data) => api.put(`/api/tallas/${id}`),
+  update: (id, data) => api.put(`/api/tallas/${id}`, data, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }),
   delete: (id) => api.delete(`/api/tallas/${id}`),
 };
 

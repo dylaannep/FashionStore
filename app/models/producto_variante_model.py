@@ -14,6 +14,7 @@ class ProductoVariante(db.Model):
     id_talla = db.Column('IdTalla', db.Integer, db.ForeignKey('Tallas.IdTalla'), nullable=False)
     sku = db.Column('SKU', db.String(100), nullable=False, unique=True)
     precio = db.Column('Precio', db.Numeric(10,2), nullable=False)
+    imagen = db.Column('Imagen', db.String(255), nullable=True)  # Nueva columna para la ruta de la imagen opcional
     activo = db.Column('Activo', db.Boolean, nullable=False, default=True)
     fecha_creacion = db.Column('FechaCreacion', db.DateTime, nullable=False, default=datetime.utcnow)
 

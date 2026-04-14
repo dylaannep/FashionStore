@@ -27,9 +27,6 @@ class Color(db.Model):
     activo = db.Column('Activo', db.Boolean, nullable=False, default=True)
     fecha_creacion = db.Column('FechaCreacion', db.DateTime, nullable=False, default=datetime.utcnow)
 
-    # Relaciones
-    productos = db.relationship('Producto', back_populates='color', lazy=True)
-
     def __repr__(self):
         """Representación de string del objeto Color"""
         return f'<Color {self.nombre}>'

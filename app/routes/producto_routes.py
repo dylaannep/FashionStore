@@ -56,3 +56,20 @@ def delete_producto(id):
         return '', 204
     except Exception:
         return jsonify({'error': 'Error interno del servidor'}), 500
+
+@producto_bp.route('/upload-image', methods=['POST'])
+@jwt_required()
+def upload_image():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No se encontró el archivo en la solicitud'}), 400
+
+    file = request.files['file']
+
+    try:
+        # Usar el servicio para subir la imagen
+        url = ProductoService.upload_image(file)
+        return jsonify({'message': 'Imagen subida exitosamente', 'url': url}), 200
+    except ValueError as ve:
+        return jsonify({'error': str(ve)}), 400
+    except Exception as e:
+        return jsonify({'error': 'Error interno del servidor', 'details': str(e)}), 500

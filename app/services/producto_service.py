@@ -5,6 +5,12 @@ from app import db
 from app.models import Producto, SubCategoria
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func
+from firebase_config import get_bucket
+from werkzeug.utils import secure_filename
+from firebase_admin import exceptions
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+MAX_FILE_SIZE_MB = 5
 
 class ProductoService:
     @staticmethod
@@ -99,3 +105,28 @@ class ProductoService:
             if value.strip().lower() in ['false','0','f','no','n']:
                 return False
         raise ValueError('Valor booleano inválido.')
+
+    @staticmethod
+    def upload_image(file):
+        # Validar tipo de archivo
+        filename = secure_filename(file.filename)
+        if '.' not in filename or filename.rsplit('.', 1)[1].lower() not in ALLOWED_EXTENSIONS:
+            raise ValueError('Tipo de archivo no permitido. Solo se permiten imágenes (png, jpg, jpeg, gif).')
+
+        # Validar tamaño del archivo
+        file.seek(0, 2)  # Mover al final del archivo para obtener el tamaño
+        file_size_mb = file.tell() / (1024 * 1024)
+        file.seek(0)  # Regresar al inicio del archivo
+        if file_size_mb > MAX_FILE_SIZE_MB:
+            raise ValueError(f'El archivo excede el tamaño máximo permitido de {MAX_FILE_SIZE_MB} MB.')
+
+        try:
+            bucket = get_bucket()
+            blob = bucket.blob(f'productos/{filename}')
+            blob.upload_from_file(file, content_type=file.content_type)
+            blob.make_public()
+            return blob.public_url
+        except exceptions.FirebaseError as e:
+            raise ValueError(f'Error al subir la imagen a Firebase: {str(e)}')
+        except Exception as e:
+            raise ValueError(f'Error inesperado al subir la imagen: {str(e)}')

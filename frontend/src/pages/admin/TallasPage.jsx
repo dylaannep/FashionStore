@@ -76,11 +76,17 @@ const TallasPage = () => {
   };
 
   const handleToggleActive = async (item) => {
-    try {
-      await tallasService.update(item.id_talla, { activo: !item.activo });
-      fetchTallas();
-    } catch (error) {
-      console.error('Error toggling active state:', error);
+    const accion = item.activo ? 'inactivar' : 'activar';
+    if (window.confirm(`¿Deseas ${accion} la talla "${item.nombre}"?`)) {
+      try {
+        const payload = { activo: !item.activo, nombre: item.nombre };
+        console.log('Payload enviado:', payload);
+        const response = await tallasService.update(item.id_talla, payload);
+        console.log('Respuesta del servicio:', response);
+        fetchTallas();
+      } catch (error) {
+        console.error('Error toggling active state:', error);
+      }
     }
   };
 

@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { productosService, categoriasService } from '../../api/services';
+import { productosService, subcategoriasService } from '../../api/services';
 import DataTable from '../../components/ui/DataTable';
 import Modal from '../../components/ui/Modal';
 import FormField from '../../components/ui/FormField';
 
 const ProductosPage = () => {
   const [productos, setProductos] = useState([]);
-  const [categorias, setCategorias] = useState([]);
+  const [subcategorias, setSubcategorias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ nombre: '', categoria: '' });
+  const [formData, setFormData] = useState({ nombre: '', id_subcategoria: '', imagen: null });
   const [editingId, setEditingId] = useState(null);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     fetchProductos();
-    fetchCategorias();
+    fetchSubcategorias();
   }, []);
 
   const fetchProductos = async () => {
@@ -29,20 +30,20 @@ const ProductosPage = () => {
     }
   };
 
-  const fetchCategorias = async () => {
+  const fetchSubcategorias = async () => {
     try {
-      const response = await categoriasService.getAll();
-      setCategorias(response.data);
+      const response = await subcategoriasService.getAll();
+      setSubcategorias(response.data);
     } catch (error) {
-      console.error('Error fetching categorias:', error);
+      console.error('Error fetching subcategorias:', error);
     }
   };
 
   const handleEdit = (item) => {
     setFormData({
       nombre: item.nombre || '',
-      categoria: item.categoria || '',
-      activo: item.activo !== undefined ? item.activo : true,
+      id_subcategoria: item.id_subcategoria || '',
+      imagen: null,
     });
     setEditingId(item.id_producto);
     setModalOpen(true);
@@ -51,7 +52,7 @@ const ProductosPage = () => {
   const handleDelete = async (producto) => {
     if (window.confirm(`¿Estás seguro de eliminar el producto "${producto.nombre}"?`)) {
       try {
-        await productosService.delete(producto.id);
+        await productosService.delete(producto.id_producto);
         fetchProductos();
       } catch (error) {
         console.error('Error deleting producto:', error);
@@ -62,25 +63,41 @@ const ProductosPage = () => {
   const handleToggleActive = async (item) => {
     const accion = item.activo ? 'inactivar' : 'activar';
     if (window.confirm(`¿Deseas ${accion} "${item.nombre}"?`)) {
-      await productosService.update(item.id_producto, { activo: !item.activo });
-      fetchProductos();
+      try {
+        await productosService.update(item.id_producto, { activo: !item.activo });
+        fetchProductos();
+      } catch (error) {
+        console.error(`Error al ${accion} producto:`, error);
+      }
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({});
+
+    if (!formData.nombre || !formData.id_subcategoria) {
+      setErrors({ nombre: 'Nombre es obligatorio', id_subcategoria: 'Subcategoría es obligatoria' });
+      return;
+    }
+
+    const formDataToSend = new FormData();
+    formDataToSend.append('nombre', formData.nombre);
+    formDataToSend.append('id_subcategoria', formData.id_subcategoria);
+    if (formData.imagen) {
+      formDataToSend.append('imagen', formData.imagen);
+    }
+
     try {
       if (editingId) {
-        await productosService.update(editingId, formData);
+        await productosService.update(editingId, formDataToSend);
       } else {
-        await productosService.create(formData);
+        await productosService.create(formDataToSend);
       }
       fetchProductos();
       setModalOpen(false);
-      setFormData({ nombre: '', categoria: '' });
-      setEditingId(null);
     } catch (error) {
-      console.error('Error saving producto:', error);
+      console.error('Error submitting producto:', error);
     }
   };
 
@@ -95,27 +112,36 @@ const ProductosPage = () => {
       </button>
       <DataTable
         columns={[
+          { key: 'imagen', label: 'Imagen', render: (url) => url ? <img src={url} alt="Producto" className="h-12 w-12 object-cover" /> : 'N/A' },
           { key: 'nombre', label: 'Nombre' },
-          { key: 'categoria', label: 'Categoría', render: (categoriaId) => categorias.find(c => c.id === categoriaId)?.nombre || 'N/A' },
+          { key: 'subcategoria_nombre', label: 'Subcategoría' },
         ]}
         data={productos}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onToggleActive={handleToggleActive}
         loading={loading}
       />
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? 'Editar Producto' : 'Nuevo Producto'}>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} encType="multipart/form-data">
           <FormField
             label="Nombre"
             value={formData.nombre}
             onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+            error={errors.nombre}
           />
           <FormField
-            label="Categoría"
+            label="Subcategoría"
             type="select"
-            options={categorias.map(c => ({ value: c.id, label: c.nombre }))}
-            value={formData.categoria}
-            onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
+            options={subcategorias.map((s) => ({ value: s.id_subcategoria, label: s.nombre }))}
+            value={formData.id_subcategoria}
+            onChange={(e) => setFormData({ ...formData, id_subcategoria: e.target.value })}
+            error={errors.id_subcategoria}
+          />
+          <FormField
+            label="Imagen"
+            type="file"
+            onChange={(e) => setFormData({ ...formData, imagen: e.target.files[0] })}
           />
           <button type="submit" className="bg-acento text-white px-4 py-2 rounded mt-4">
             Guardar

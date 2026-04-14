@@ -30,6 +30,17 @@ class TallaService:
         return nueva_talla
 
     @staticmethod
+    def _parse_bool(value):
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            if value.strip().lower() in ['true', '1', 't', 'yes', 'y']:
+                return True
+            if value.strip().lower() in ['false', '0', 'f', 'no', 'n']:
+                return False
+        raise ValueError('Valor booleano inválido.')
+
+    @staticmethod
     def update(id_talla, data):
         talla = TallaService.get_by_id(id_talla)
         if not talla:
@@ -44,7 +55,7 @@ class TallaService:
             raise ValueError('El nombre no puede exceder 100 caracteres.')
 
         talla.nombre = nombre
-        talla.activo = activo
+        talla.activo = TallaService._parse_bool(activo)  # Conversión explícita
         db.session.commit()
         return talla
 
@@ -54,6 +65,6 @@ class TallaService:
         if not talla:
             return False
 
-        talla.deleted = True
+        talla.activo = False  # Cambiar el estado a inactivo en lugar de usar un atributo inexistente
         db.session.commit()
         return True
