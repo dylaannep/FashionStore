@@ -12,7 +12,7 @@ def list_producto_variantes():
         variantes = ProductoVarianteService.get_by_producto(producto_id)
     else:
         variantes = ProductoVarianteService.get_all()
-    return jsonify([v for v in variantes]), 200
+    return jsonify([v.to_dict() for v in variantes]), 200
 
 @producto_variante_bp.route('/<int:id>', methods=['GET'])
 @jwt_required()
@@ -20,35 +20,35 @@ def get_producto_variante(id):
     variante = ProductoVarianteService.get_by_id(id)
     if not variante:
         return jsonify({'error': 'ProductoVariante no encontrado'}), 404
-    return jsonify(variante), 200
+    return jsonify(variante.to_dict()), 200
 
 @producto_variante_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_producto_variante():
     try:
-        variante = ProductoVarianteService.create(request.json)
-        return jsonify(variante), 201
+        variante = ProductoVarianteService.create(request.get_json() or {})
+        return jsonify(variante.to_dict()), 201
     except ValueError as ve:
         return jsonify({'error': str(ve)}), 400
     except IntegrityError:
         return jsonify({'error': 'Conflicto en la base de datos'}), 409
-    except Exception:
-        return jsonify({'error': 'Error interno del servidor'}), 500
+    except Exception as e:
+        return jsonify({'error': 'Error interno del servidor', 'details': str(e)}), 500
 
 @producto_variante_bp.route('/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_producto_variante(id):
     try:
-        variante = ProductoVarianteService.update(id, request.json)
+        variante = ProductoVarianteService.update(id, request.get_json() or {})
         if not variante:
             return jsonify({'error': 'ProductoVariante no encontrado'}), 404
-        return jsonify(variante), 200
+        return jsonify(variante.to_dict()), 200
     except ValueError as ve:
         return jsonify({'error': str(ve)}), 400
     except IntegrityError:
         return jsonify({'error': 'Conflicto en la base de datos'}), 409
-    except Exception:
-        return jsonify({'error': 'Error interno del servidor'}), 500
+    except Exception as e:
+        return jsonify({'error': 'Error interno del servidor', 'details': str(e)}), 500
 
 @producto_variante_bp.route('/<int:id>', methods=['DELETE'])
 @jwt_required()

@@ -55,11 +55,11 @@ export const productosService = {
 
 // Variantes
 export const variantesService = {
-  getAll: () => api.get('/api/variantes/'),
-  getById: (id) => api.get(`/api/variantes/${id}`),
-  create: (data) => api.post('/api/variantes/', data),
-  update: (id, data) => api.put(`/api/variantes/${id}`, data),
-  delete: (id) => api.delete(`/api/variantes/${id}`),
+  getAll: () => api.get('/api/producto-variantes/'),
+  getById: (id) => api.get(`/api/producto-variantes/${id}`),
+  create: (data) => api.post('/api/producto-variantes/', data),
+  update: (id, data) => api.put(`/api/producto-variantes/${id}`, data),
+  delete: (id) => api.delete(`/api/producto-variantes/${id}`),
 };
 
 // Inventario

@@ -26,6 +26,9 @@ class Talla(db.Model):
     activo = db.Column('Activo', db.Boolean, nullable=False, default=True)
     fecha_creacion = db.Column('FechaCreacion', db.DateTime, nullable=False, default=datetime.utcnow)
 
+    # Relaciones
+    variantes = db.relationship('ProductoVariante', back_populates='talla', lazy=True)
+
     def __repr__(self):
         return f'<Talla {self.nombre}>'
 

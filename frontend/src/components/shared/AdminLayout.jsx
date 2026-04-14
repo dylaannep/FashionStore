@@ -9,7 +9,7 @@ const navItems = [
     { label: 'Categorías', icon: <List size={18} />, to: '/admin/categorias' },
     { label: 'Subcategorías', icon: <Layers size={18} />, to: '/admin/subcategorias' },
     { label: 'Productos', icon: <Package size={18} />, to: '/admin/productos' },
-    { label: 'Variantes', icon: <Boxes size={18} />, to: '/admin/variantes' },
+    { label: 'Variantes', icon: <Boxes size={18} />, to: '/admin/producto-variantes' },
     { label: 'Colores', icon: <Palette size={18} />, to: '/admin/colores' },
     { label: 'Tallas', icon: <Ruler size={18} />, to: '/admin/tallas' },
   ]},

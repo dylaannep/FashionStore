@@ -24,14 +24,17 @@ class ProductoVariante(db.Model):
 
     # Relaciones
     producto = db.relationship('Producto', back_populates='variantes')
-    color = db.relationship('Color')
-    talla = db.relationship('Talla')
+    color = db.relationship('Color', back_populates='variantes')
+    talla = db.relationship('Talla', back_populates='variantes')
     inventario = db.relationship('Inventario', back_populates='producto_variante', uselist=False)
 
     def __repr__(self):
         return f'<ProductoVariante {self.id_producto_variante} SKU={self.sku}>'
 
     def to_dict(self):
+        # Si la variante no tiene imagen, usar la del producto
+        imagen_final = self.imagen if self.imagen else (self.producto.imagen if self.producto else None)
+        
         return {
             'id_producto_variante': self.id_producto_variante,
             'id_producto': self.id_producto,
@@ -39,6 +42,8 @@ class ProductoVariante(db.Model):
             'id_talla': self.id_talla,
             'sku': self.sku,
             'precio': float(self.precio) if self.precio is not None else None,
+            'imagen': imagen_final,  # Imagen de variante o del producto
+            'imagen_propia': self.imagen,  # Imagen específica de la variante (puede ser null)
             'activo': self.activo,
             'fecha_creacion': self.fecha_creacion.isoformat() if self.fecha_creacion else None
         }

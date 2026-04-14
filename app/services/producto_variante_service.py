@@ -9,11 +9,15 @@ from sqlalchemy import func
 class ProductoVarianteService:
     @staticmethod
     def get_all():
-        return ProductoVariante.query.filter_by(activo=True).all()
+        return ProductoVariante.query.all()
 
     @staticmethod
     def get_by_id(id_producto_variante):
         return ProductoVariante.query.get(id_producto_variante)
+    
+    @staticmethod
+    def get_by_producto(id_producto):
+        return ProductoVariante.query.filter_by(id_producto=id_producto).all()
 
     @staticmethod
     def create(payload: dict):
@@ -22,6 +26,7 @@ class ProductoVarianteService:
         id_talla = payload.get('id_talla')
         sku = payload.get('sku')
         precio = payload.get('precio')
+        imagen = payload.get('imagen')
         activo = payload.get('activo', True)
         if not id_producto or not Producto.query.get(id_producto):
             raise ValueError('El producto especificado no existe.')
@@ -47,6 +52,7 @@ class ProductoVarianteService:
             id_talla=id_talla,
             sku=sku.strip().upper(),
             precio=precio,
+            imagen=imagen,
             activo=ProductoVarianteService._parse_bool(activo)
         )
         db.session.add(variante)
@@ -60,6 +66,7 @@ class ProductoVarianteService:
             return None
         sku = payload.get('sku')
         precio = payload.get('precio')
+        imagen = payload.get('imagen')
         activo = payload.get('activo')
         if sku is not None:
             if ' ' in sku or len(sku) < 3 or len(sku) > 100:
@@ -75,6 +82,8 @@ class ProductoVarianteService:
             if precio <= 0 or round(precio,2) != precio:
                 raise ValueError('El precio debe ser mayor a 0 y tener máximo 2 decimales.')
             variante.precio = precio
+        if imagen is not None:
+            variante.imagen = imagen
         if activo is not None:
             variante.activo = ProductoVarianteService._parse_bool(activo)
         db.session.commit()
