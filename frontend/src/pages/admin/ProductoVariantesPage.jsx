@@ -143,18 +143,32 @@ const ProductoVariantesPage = () => {
       return;
     }
 
-    // Crear FormData para manejar imagen
-    const dataToSend = new FormData();
-    dataToSend.append('id_producto', parseInt(formData.id_producto));
-    dataToSend.append('id_color', parseInt(formData.id_color));
-    dataToSend.append('id_talla', parseInt(formData.id_talla));
-    dataToSend.append('sku', formData.sku);
-    dataToSend.append('precio', parseFloat(formData.precio));
-    dataToSend.append('activo', formData.activo);
+    // Determinar si usar FormData (si hay imagen) o JSON plano
+    let dataToSend;
     
-    // Si hay imagen, agregarla al FormData
     if (formData.imagen) {
+      // Usar FormData si hay archivo de imagen
+      dataToSend = new FormData();
+      dataToSend.append('id_producto', parseInt(formData.id_producto));
+      dataToSend.append('id_color', parseInt(formData.id_color));
+      dataToSend.append('id_talla', parseInt(formData.id_talla));
+      dataToSend.append('sku', formData.sku);
+      dataToSend.append('precio', parseFloat(formData.precio));
+      dataToSend.append('activo', formData.activo);
       dataToSend.append('imagen', formData.imagen);
+    } else {
+      // Usar JSON plano si no hay imagen
+      dataToSend = {
+        sku: formData.sku,
+        precio: parseFloat(formData.precio),
+        activo: formData.activo,
+      };
+      // Incluir campos adicionales solo en creación
+      if (!editingId) {
+        dataToSend.id_producto = parseInt(formData.id_producto);
+        dataToSend.id_color = parseInt(formData.id_color);
+        dataToSend.id_talla = parseInt(formData.id_talla);
+      }
     }
 
     try {

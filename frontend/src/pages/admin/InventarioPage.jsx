@@ -1,188 +1,353 @@
 import React, { useEffect, useState } from 'react';
-import { inventarioService, productosService } from '../../api/services';
+import { inventarioService, variantesService, movimientosService } from '../../api/services';
 import DataTable from '../../components/ui/DataTable';
 import Modal from '../../components/ui/Modal';
 import FormField from '../../components/ui/FormField';
 
 const InventarioPage = () => {
-  const [inventario, setInventario] = useState([]);
-  const [productos, setProductos] = useState([]);
+  const [inventarios, setInventarios] = useState([]);
+  const [variantes, setVariantes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ producto: '', cantidad: 0, activo: true });
+  const [modalMovimiento, setModalMovimiento] = useState(false);
+  const [tipoModal, setTipoModal] = useState('crear'); // 'crear' o 'movimiento'
+  const [formData, setFormData] = useState({
+    id_producto_variante: '',
+    stock: '',
+    stock_minimo: '',
+  });
+  const [formMovimiento, setFormMovimiento] = useState({
+    id_producto_variante: '',
+    tipo_movimiento: 'ENTRADA',
+    cantidad: '',
+    motivo: '',
+  });
   const [editingId, setEditingId] = useState(null);
   const [errors, setErrors] = useState({});
+  const [erroresMovimiento, setErroresMovimiento] = useState({});
 
   useEffect(() => {
-    fetchInventario();
-    fetchProductos();
+    fetchInventarios();
+    fetchVariantes();
   }, []);
 
-  const fetchInventario = async () => {
+  const fetchInventarios = async () => {
     setLoading(true);
     try {
       const response = await inventarioService.getAll();
-      setInventario(response.data);
+      setInventarios(response.data);
     } catch (error) {
-      console.error('Error fetching inventario:', error);
+      console.error('Error fetching inventarios:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchProductos = async () => {
+  const fetchVariantes = async () => {
     try {
-      const response = await productosService.getAll();
-      setProductos(response.data);
+      const response = await variantesService.getAll();
+      setVariantes(response.data);
     } catch (error) {
-      console.error('Error fetching productos:', error);
+      console.error('Error fetching variantes:', error);
     }
+  };
+
+  const getVarianteName = (variante) => {
+    if (!variante) return 'N/A';
+    return `${variante.sku} - $${parseFloat(variante.precio).toFixed(2)}`;
+  };
+
+  const handleCrearMovimiento = (inventario) => {
+    setFormMovimiento({
+      id_producto_variante: inventario.id_producto_variante || '',
+      tipo_movimiento: 'ENTRADA',
+      cantidad: '',
+      motivo: '',
+    });
+    setEditingId(inventario.id_inventario);
+    setTipoModal('movimiento');
+    setModalMovimiento(true);
   };
 
   const handleEdit = (item) => {
     setFormData({
-      producto: item.producto || '',
-      cantidad: item.cantidad || 0,
-      activo: item.activo !== undefined ? item.activo : true,
+      id_producto_variante: item.id_producto_variante || '',
+      stock: item.stock || '',
+      stock_minimo: item.stock_minimo || '',
     });
     setEditingId(item.id_inventario);
+    setTipoModal('editar');
     setModalOpen(true);
   };
 
-  const handleModalClose = () => {
-    setModalOpen(false);
-    setFormData({ producto: '', cantidad: 0, activo: true });
-    setErrors({});
-    setEditingId(null);
-  };
-
-  const handleSubmit = async () => {
-    if (!formData.producto) {
-      setErrors({ producto: 'El producto es obligatorio' });
-      return;
-    }
-    if (formData.cantidad <= 0) {
-      setErrors({ cantidad: 'La cantidad debe ser mayor a 0' });
-      return;
-    }
-
-    try {
-      if (editingId) {
-        await inventarioService.update(editingId, formData);
-      } else {
-        await inventarioService.create(formData);
+  const handleDelete = async (inventario) => {
+    if (window.confirm(`¿Estás seguro de eliminar el inventario para esta variante?`)) {
+      try {
+        await inventarioService.delete(inventario.id_inventario);
+        fetchInventarios();
+      } catch (error) {
+        console.error('Error deleting inventario:', error);
+        alert('Error al eliminar el inventario');
       }
-      fetchInventario();
-      handleModalClose();
-    } catch (error) {
-      console.error('Error saving inventario:', error);
-      setErrors({ general: 'Ocurrió un error al guardar el registro de inventario' });
     }
   };
 
   const handleToggleActive = async (item) => {
+    const accion = item.activo ? 'inactivar' : 'activar';
+    if (window.confirm(`¿Deseas ${accion} el inventario de esta variante?`)) {
+      try {
+        await inventarioService.update(item.id_inventario, { activo: !item.activo });
+        fetchInventarios();
+      } catch (error) {
+        console.error(`Error al ${accion} el inventario:`, error);
+        alert(`Ocurrió un error al intentar ${accion} el inventario. Por favor, inténtalo de nuevo.`);
+      }
+    }
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setFormData({
+      id_producto_variante: '',
+      stock: '',
+      stock_minimo: '',
+    });
+    setErrors({});
+    setEditingId(null);
+  };
+
+  const handleMovimientoClose = () => {
+    setModalMovimiento(false);
+    setFormMovimiento({
+      id_producto_variante: '',
+      tipo_movimiento: 'ENTRADA',
+      cantidad: '',
+      motivo: '',
+    });
+    setErroresMovimiento({});
+    setEditingId(null);
+  };
+
+  const handleSubmit = async () => {
+    setErrors({});
+    const newErrors = {};
+
+    if (!formData.id_producto_variante) {
+      newErrors.id_producto_variante = 'Debe seleccionar una variante.';
+    }
+    if (!formData.stock) {
+      newErrors.stock = 'El stock es obligatorio.';
+    } else if (isNaN(formData.stock) || parseInt(formData.stock) < 0) {
+      newErrors.stock = 'El stock debe ser un número mayor o igual a 0.';
+    }
+    if (!formData.stock_minimo) {
+      newErrors.stock_minimo = 'El stock mínimo es obligatorio.';
+    } else if (isNaN(formData.stock_minimo) || parseInt(formData.stock_minimo) < 0) {
+      newErrors.stock_minimo = 'El stock mínimo debe ser un número mayor o igual a 0.';
+    } else if (parseInt(formData.stock_minimo) > parseInt(formData.stock)) {
+      newErrors.stock_minimo = 'El stock mínimo no puede ser mayor al stock actual.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    const dataToSend = {
+      id_producto_variante: parseInt(formData.id_producto_variante),
+      stock: parseInt(formData.stock),
+      stock_minimo: parseInt(formData.stock_minimo),
+    };
+
     try {
-      await inventarioService.update(item.id_inventario, { activo: !item.activo });
-      fetchInventario();
+      if (editingId) {
+        await inventarioService.update(editingId, dataToSend);
+      } else {
+        await inventarioService.create(dataToSend);
+      }
+      fetchInventarios();
+      handleModalClose();
     } catch (error) {
-      console.error('Error toggling active state:', error);
+      const mensaje = error?.response?.data?.error || '';
+      const backendErrors = {};
+
+      if (mensaje.toLowerCase().includes('variante')) {
+        backendErrors.id_producto_variante = mensaje;
+      } else if (mensaje.toLowerCase().includes('stock')) {
+        backendErrors.stock = mensaje;
+      } else {
+        backendErrors.general = mensaje || 'Ocurrió un error al guardar. Intenta de nuevo.';
+      }
+
+      setErrors(backendErrors);
+    }
+  };
+
+  const handleSubmitMovimiento = async () => {
+    setErroresMovimiento({});
+    const newErrors = {};
+
+    if (!formMovimiento.id_producto_variante) {
+      newErrors.id_producto_variante = 'Debe seleccionar una variante.';
+    }
+    if (!formMovimiento.cantidad) {
+      newErrors.cantidad = 'La cantidad es obligatoria.';
+    } else if (isNaN(formMovimiento.cantidad) || parseInt(formMovimiento.cantidad) <= 0) {
+      newErrors.cantidad = 'La cantidad debe ser un número mayor a 0.';
+    }
+    if (!formMovimiento.motivo.trim()) {
+      newErrors.motivo = 'El motivo es obligatorio.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErroresMovimiento(newErrors);
+      return;
+    }
+
+    const dataToSend = {
+      id_producto_variante: parseInt(formMovimiento.id_producto_variante),
+      tipo_movimiento: formMovimiento.tipo_movimiento,
+      cantidad: parseInt(formMovimiento.cantidad),
+      motivo: formMovimiento.motivo,
+    };
+
+    try {
+      await movimientosService.create(dataToSend);
+      fetchInventarios();
+      handleMovimientoClose();
+    } catch (error) {
+      const mensaje = error?.response?.data?.error || '';
+      const backendErrors = {};
+
+      if (mensaje.toLowerCase().includes('cantidad')) {
+        backendErrors.cantidad = mensaje;
+      } else if (mensaje.toLowerCase().includes('stock')) {
+        backendErrors.general = mensaje;
+      } else {
+        backendErrors.general = mensaje || 'Ocurrió un error al procesar el movimiento. Intenta de nuevo.';
+      }
+
+      setErroresMovimiento(backendErrors);
     }
   };
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Inventario</h1>
+      <h1 className="text-2xl font-bold mb-4">Gestión de Inventario</h1>
       <button
         className="bg-acento text-white px-4 py-2 rounded mb-4"
-        onClick={() => setModalOpen(true)}
+        onClick={() => {
+          setEditingId(null);
+          setFormData({
+            id_producto_variante: '',
+            stock: '',
+            stock_minimo: '',
+          });
+          setErrors({});
+          setTipoModal('crear');
+          setModalOpen(true);
+        }}
       >
-        Nuevo Registro
+        Nuevo Inventario
       </button>
       <DataTable
         columns={[
-          { key: 'producto', label: 'Producto', render: (productoId) => productos.find(p => p.id === productoId)?.nombre || 'N/A' },
-          { key: 'cantidad', label: 'Cantidad' },
-          { key: 'activo', label: 'Activo', render: (activo) => (activo ? 'Sí' : 'No') },
+          { key: 'id_producto_variante', label: 'Variante', render: (val) => {
+            const variante = variantes.find(v => v.id_producto_variante === val);
+            return getVarianteName(variante);
+          }},
+          { key: 'stock', label: 'Stock Actual', render: (val) => val || 0 },
+          { key: 'stock_minimo', label: 'Stock Mínimo', render: (val) => val || 0 },
+          { key: 'activo', label: 'Estado', render: (val) => (val ? 'Activo' : 'Inactivo') },
+          { 
+            key: 'acciones', 
+            label: 'Acciones', 
+            render: (_, row) => (
+              <button
+                className="bg-blue-500 text-white px-2 py-1 rounded text-xs mr-2 hover:bg-blue-600"
+                onClick={() => handleCrearMovimiento(row)}
+              >
+                Movimiento
+              </button>
+            )
+          },
         ]}
-        data={inventario}
+        data={inventarios}
         onEdit={handleEdit}
+        onDelete={handleDelete}
         onToggleActive={handleToggleActive}
         loading={loading}
       />
+
+      {/* Modal para Crear/Editar Inventario */}
       <Modal
         isOpen={modalOpen}
         onClose={handleModalClose}
         onSubmit={handleSubmit}
-        title={editingId ? 'Editar Registro' : 'Nuevo Registro'}
-        submitLabel={editingId ? 'Guardar cambios' : 'Crear registro'}
-        size="md"
+        title={tipoModal === 'crear' ? 'Nuevo Inventario' : 'Editar Inventario'}
+        submitLabel={tipoModal === 'crear' ? 'Crear inventario' : 'Guardar cambios'}
       >
-        <FormField label="Producto">
+        <FormField label="Variante">
           <select
-            value={formData.producto}
+            value={formData.id_producto_variante}
             onChange={(e) => {
-              setFormData({ ...formData, producto: e.target.value });
-              if (errors.producto) setErrors({ ...errors, producto: '' });
+              setFormData({ ...formData, id_producto_variante: e.target.value });
+              if (errors.id_producto_variante) setErrors({ ...errors, id_producto_variante: '' });
             }}
+            disabled={tipoModal === 'editar'}
             className={`w-full px-3 py-2 rounded-lg border text-sm bg-white placeholder-gray-400 
               focus:outline-none focus:ring-2 transition-colors ${
-              errors.producto
+              errors.id_producto_variante
                 ? 'border-red-400 focus:ring-red-200'
                 : 'border-gray-300 focus:ring-blue-200 focus:border-blue-400'
-            }`}
+            } ${tipoModal === 'editar' ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            <option value="">Seleccione un producto</option>
-            {productos.map((p) => (
-              <option key={p.id} value={p.id}>{p.nombre}</option>
-            ))}
+            <option value="">Seleccione una variante</option>
+            {variantes
+              .filter(v => {
+                // No mostrar variantes que ya tienen inventario (excepto la que se está editando)
+                const tieneInventario = inventarios.some(inv => inv.id_producto_variante === v.id_producto_variante);
+                return !tieneInventario || v.id_producto_variante === parseInt(formData.id_producto_variante);
+              })
+              .map((variante) => (
+                <option key={variante.id_producto_variante} value={variante.id_producto_variante}>
+                  {getVarianteName(variante)}
+                </option>
+              ))}
           </select>
-          {errors.producto && (
+          {errors.id_producto_variante && (
             <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
               <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
               </svg>
-              {errors.producto}
+              {errors.id_producto_variante}
             </p>
           )}
         </FormField>
 
-        <FormField label="Cantidad">
-          <input
-            type="number"
-            value={formData.cantidad}
-            onChange={(e) => {
-              setFormData({ ...formData, cantidad: parseInt(e.target.value, 10) });
-              if (errors.cantidad) setErrors({ ...errors, cantidad: '' });
-            }}
-            placeholder="Ingrese la cantidad"
-            className={`w-full px-3 py-2 rounded-lg border text-sm bg-white placeholder-gray-400 
-              focus:outline-none focus:ring-2 transition-colors ${
-              errors.cantidad
-                ? 'border-red-400 focus:ring-red-200'
-                : 'border-gray-300 focus:ring-blue-200 focus:border-blue-400'
-            }`}
-          />
-          {errors.cantidad && (
-            <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-              <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
-              </svg>
-              {errors.cantidad}
-            </p>
-          )}
-        </FormField>
+        <FormField
+          label="Stock Actual"
+          type="number"
+          value={formData.stock}
+          onChange={(e) => {
+            setFormData({ ...formData, stock: e.target.value });
+            if (errors.stock) setErrors({ ...errors, stock: '' });
+          }}
+          error={errors.stock}
+          placeholder="0"
+        />
 
-        <FormField label="Activo">
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={formData.activo}
-              onChange={(e) => setFormData({ ...formData, activo: e.target.checked })}
-              className="checkbox checkbox-primary"
-            />
-            <span className="text-sm text-gray-700">Activo</span>
-          </div>
-        </FormField>
+        <FormField
+          label="Stock Mínimo"
+          type="number"
+          value={formData.stock_minimo}
+          onChange={(e) => {
+            setFormData({ ...formData, stock_minimo: e.target.value });
+            if (errors.stock_minimo) setErrors({ ...errors, stock_minimo: '' });
+          }}
+          error={errors.stock_minimo}
+          placeholder="0"
+        />
 
         {errors.general && (
           <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -193,8 +358,62 @@ const InventarioPage = () => {
           </div>
         )}
       </Modal>
+
+      {/* Modal para Movimientos */}
+      <Modal
+        isOpen={modalMovimiento}
+        onClose={handleMovimientoClose}
+        onSubmit={handleSubmitMovimiento}
+        title="Realizar Movimiento"
+        submitLabel="Procesar movimiento"
+      >
+        <FormField label="Tipo de Movimiento">
+          <select
+            value={formMovimiento.tipo_movimiento}
+            onChange={(e) => setFormMovimiento({ ...formMovimiento, tipo_movimiento: e.target.value })}
+            className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+          >
+            <option value="ENTRADA">Entrada (Agregar stock)</option>
+            <option value="SALIDA">Salida (Restar stock)</option>
+            <option value="AJUSTE">Ajuste</option>
+          </select>
+        </FormField>
+
+        <FormField
+          label="Cantidad"
+          type="number"
+          value={formMovimiento.cantidad}
+          onChange={(e) => {
+            setFormMovimiento({ ...formMovimiento, cantidad: e.target.value });
+            if (erroresMovimiento.cantidad) setErroresMovimiento({ ...erroresMovimiento, cantidad: '' });
+          }}
+          error={erroresMovimiento.cantidad}
+          placeholder="0"
+        />
+
+        <FormField
+          label="Motivo"
+          value={formMovimiento.motivo}
+          onChange={(e) => {
+            setFormMovimiento({ ...formMovimiento, motivo: e.target.value });
+            if (erroresMovimiento.motivo) setErroresMovimiento({ ...erroresMovimiento, motivo: '' });
+          }}
+          error={erroresMovimiento.motivo}
+          placeholder="Ej: Reabastecimiento, Devolución, Corrección de inventario..."
+        />
+
+        {erroresMovimiento.general && (
+          <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
+            </svg>
+            {erroresMovimiento.general}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
 
 export default InventarioPage;
+

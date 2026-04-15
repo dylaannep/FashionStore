@@ -6,8 +6,9 @@ import { PencilIcon, PowerIcon } from '@heroicons/react/24/outline';
 const DataTable = ({
   columns,
   data,
-  onEdit = () => {},
-  onToggleActive = () => {},
+  onEdit = null,
+  onToggleActive = null,
+  onDelete = null,
   loading = false,
 }) => {
   if (loading) {
@@ -47,15 +48,17 @@ const DataTable = ({
                 </Typography>
               </th>
             ))}
-            <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-              <Typography
-                variant="small"
-                color="blue-gray"
-                className="font-semibold uppercase"
-              >
-                Acciones
-              </Typography>
-            </th>
+            {(onEdit || onToggleActive || onDelete) && (
+              <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-semibold uppercase"
+                >
+                  Acciones
+                </Typography>
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -77,30 +80,36 @@ const DataTable = ({
                     : row[column.key]}
                 </td>
               ))}
-              <td className="p-4 flex gap-2">
-                <Button
-                  size="sm"
-                  variant="text"
-                  className="bg-blue-50 text-blue-600 hover:bg-blue-100"
-                  onClick={() => onEdit(row)}
-                >
-                  <PencilIcon className="h-5 w-5" />
-                  Editar
-                </Button>
-                <Button
-                  size="sm"
-                  variant="text"
-                  className={
-                    row.activo
-                      ? "bg-amber-50 text-amber-600 hover:bg-amber-100"
-                      : "bg-green-50 text-green-600 hover:bg-green-100"
-                  }
-                  onClick={() => onToggleActive(row)}
-                >
-                  <PowerIcon className="h-5 w-5" />
-                  {row.activo ? "Inactivar" : "Activar"}
-                </Button>
-              </td>
+              {(onEdit || onToggleActive || onDelete) && (
+                <td className="p-4 flex gap-2">
+                  {onEdit && (
+                    <Button
+                      size="sm"
+                      variant="text"
+                      className="bg-blue-50 text-blue-600 hover:bg-blue-100"
+                      onClick={() => onEdit(row)}
+                    >
+                      <PencilIcon className="h-5 w-5" />
+                      Editar
+                    </Button>
+                  )}
+                  {onToggleActive && row.activo !== undefined && (
+                    <Button
+                      size="sm"
+                      variant="text"
+                      className={
+                        row.activo
+                          ? "bg-amber-50 text-amber-600 hover:bg-amber-100"
+                          : "bg-green-50 text-green-600 hover:bg-green-100"
+                      }
+                      onClick={() => onToggleActive(row)}
+                    >
+                      <PowerIcon className="h-5 w-5" />
+                      {row.activo ? "Inactivar" : "Activar"}
+                    </Button>
+                  )}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
@@ -120,6 +129,7 @@ DataTable.propTypes = {
   data: PropTypes.array.isRequired,
   onEdit: PropTypes.func,
   onToggleActive: PropTypes.func,
+  onDelete: PropTypes.func,
   loading: PropTypes.bool,
 };
 

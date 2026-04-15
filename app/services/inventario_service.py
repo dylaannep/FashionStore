@@ -58,6 +58,42 @@ class InventarioService:
         return inventario
 
     @staticmethod
+    def update(id_inventario, payload: dict):
+        inventario = InventarioService.get_by_id(id_inventario)
+        if not inventario:
+            return None
+        
+        stock = payload.get('stock')
+        stock_minimo = payload.get('stock_minimo')
+        activo = payload.get('activo')
+        
+        if stock is not None:
+            stock = InventarioService._parse_int(stock, minimo=0)
+            inventario.stock = stock
+        
+        if stock_minimo is not None:
+            stock_minimo = InventarioService._parse_int(stock_minimo, minimo=0)
+            if stock_minimo > (stock if stock is not None else inventario.stock):
+                raise ValueError('El stock mínimo no puede ser mayor al stock actual.')
+            inventario.stock_minimo = stock_minimo
+        
+        if activo is not None:
+            inventario.activo = InventarioService._parse_bool(activo)
+        
+        inventario.ultima_actualizacion = datetime.utcnow()
+        db.session.commit()
+        return inventario
+
+    @staticmethod
+    def delete(id_inventario):
+        inventario = InventarioService.get_by_id(id_inventario)
+        if not inventario:
+            return False
+        db.session.delete(inventario)
+        db.session.commit()
+        return True
+
+    @staticmethod
     def get_bajo_stock():
         return Inventario.query.filter(Inventario.stock <= Inventario.stock_minimo).all()
 
@@ -70,3 +106,14 @@ class InventarioService:
         if value < minimo:
             raise ValueError(f'El valor debe ser mayor o igual a {minimo}.')
         return value
+
+    @staticmethod
+    def _parse_bool(value):
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            if value.strip().lower() in ['true','1','t','yes','y']:
+                return True
+            if value.strip().lower() in ['false','0','f','no','n']:
+                return False
+        raise ValueError('Valor booleano inválido.')

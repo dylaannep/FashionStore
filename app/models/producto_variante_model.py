@@ -27,6 +27,7 @@ class ProductoVariante(db.Model):
     color = db.relationship('Color', back_populates='variantes')
     talla = db.relationship('Talla', back_populates='variantes')
     inventario = db.relationship('Inventario', back_populates='producto_variante', uselist=False)
+    movimientos = db.relationship('MovimientoInventario', back_populates='producto_variante', lazy=True)
 
     def __repr__(self):
         return f'<ProductoVariante {self.id_producto_variante} SKU={self.sku}>'

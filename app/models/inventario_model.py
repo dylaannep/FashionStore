@@ -11,6 +11,7 @@ class Inventario(db.Model):
     id_producto_variante = db.Column('IdProductoVariante', db.Integer, db.ForeignKey('ProductoVariantes.IdProductoVariante'), nullable=False, unique=True)
     stock = db.Column('Stock', db.Integer, nullable=False, default=0)
     stock_minimo = db.Column('StockMinimo', db.Integer, nullable=False, default=0)
+    activo = db.Column('Activo', db.Boolean, nullable=False, default=True)
     ultima_actualizacion = db.Column('UltimaActualizacion', db.DateTime, nullable=False, default=datetime.utcnow)
 
     # Relaciones
@@ -25,5 +26,6 @@ class Inventario(db.Model):
             'id_producto_variante': self.id_producto_variante,
             'stock': self.stock,
             'stock_minimo': self.stock_minimo,
+            'activo': self.activo,
             'ultima_actualizacion': self.ultima_actualizacion.isoformat() if self.ultima_actualizacion else None
         }
