@@ -26,7 +26,24 @@ def get_producto_variante(id):
 @jwt_required()
 def create_producto_variante():
     try:
-        variante = ProductoVarianteService.create(request.get_json() or {})
+        # Manejar tanto JSON como FormData
+        if request.content_type and 'application/json' in request.content_type:
+            payload = request.get_json() or {}
+        else:
+            # Si es FormData, convertir a diccionario
+            payload = request.form.to_dict()
+            # Convertir activo a booleano si viene como string
+            if 'activo' in payload:
+                payload['activo'] = payload['activo'].lower() in ['true', '1', 'true']
+        
+        # Manejar imagen si viene en FormData
+        if 'imagen' in request.files:
+            file = request.files['imagen']
+            if file and file.filename != '':
+                url = ProductoVarianteService.upload_image(file)
+                payload['imagen'] = url
+        
+        variante = ProductoVarianteService.create(payload)
         return jsonify(variante.to_dict()), 201
     except ValueError as ve:
         return jsonify({'error': str(ve)}), 400
@@ -39,7 +56,24 @@ def create_producto_variante():
 @jwt_required()
 def update_producto_variante(id):
     try:
-        variante = ProductoVarianteService.update(id, request.get_json() or {})
+        # Manejar tanto JSON como FormData
+        if request.content_type and 'application/json' in request.content_type:
+            payload = request.get_json() or {}
+        else:
+            # Si es FormData, convertir a diccionario
+            payload = request.form.to_dict()
+            # Convertir activo a booleano si viene como string
+            if 'activo' in payload:
+                payload['activo'] = payload['activo'].lower() in ['true', '1', 'true']
+        
+        # Manejar imagen si viene en FormData
+        if 'imagen' in request.files:
+            file = request.files['imagen']
+            if file and file.filename != '':
+                url = ProductoVarianteService.upload_image(file)
+                payload['imagen'] = url
+        
+        variante = ProductoVarianteService.update(id, payload)
         if not variante:
             return jsonify({'error': 'ProductoVariante no encontrado'}), 404
         return jsonify(variante.to_dict()), 200

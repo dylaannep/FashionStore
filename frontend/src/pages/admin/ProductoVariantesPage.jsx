@@ -143,18 +143,18 @@ const ProductoVariantesPage = () => {
       return;
     }
 
-    const dataToSend = {
-      id_producto: parseInt(formData.id_producto),
-      id_color: parseInt(formData.id_color),
-      id_talla: parseInt(formData.id_talla),
-      sku: formData.sku,
-      precio: parseFloat(formData.precio),
-      activo: formData.activo,
-    };
-
-    // Si hay imagen, agregar a los datos
+    // Crear FormData para manejar imagen
+    const dataToSend = new FormData();
+    dataToSend.append('id_producto', parseInt(formData.id_producto));
+    dataToSend.append('id_color', parseInt(formData.id_color));
+    dataToSend.append('id_talla', parseInt(formData.id_talla));
+    dataToSend.append('sku', formData.sku);
+    dataToSend.append('precio', parseFloat(formData.precio));
+    dataToSend.append('activo', formData.activo);
+    
+    // Si hay imagen, agregarla al FormData
     if (formData.imagen) {
-      dataToSend.imagen = formData.imagen;
+      dataToSend.append('imagen', formData.imagen);
     }
 
     try {
