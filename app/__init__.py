@@ -2,7 +2,7 @@
 Application Factory para FashionStore
 Configuración de extensiones y registro de blueprints
 """
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
@@ -150,6 +150,10 @@ def register_blueprints(flask_app):
     # Registrar blueprint de pedidos
     from app.routes.pedido_routes import pedido_bp
     flask_app.register_blueprint(pedido_bp)
+
+    # Registrar blueprint de métodos de pago
+    from app.routes.metodos_pago_routes import metodos_pago_bp
+    flask_app.register_blueprint(metodos_pago_bp)
 
     # Registrar blueprint de detalle_pedido
     from app.routes.detalle_pedido_routes import detalle_pedido_bp

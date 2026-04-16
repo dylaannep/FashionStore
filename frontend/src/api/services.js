@@ -87,6 +87,41 @@ export const pedidosService = {
   create: (data) => api.post('/api/pedidos/', data),
   update: (id, data) => api.put(`/api/pedidos/${id}`, data),
   delete: (id) => api.delete(`/api/pedidos/${id}`),
+  getByUsuario: (id_usuario) => api.get(`/api/pedidos/usuario/${id_usuario}`),
+  cambiarEstado: (id_pedido, id_estado) => api.put(`/api/pedidos/${id_pedido}/estado`, { id_estado }),
+};
+
+// Función auxiliar para crear pedidos (wrapper con mejor manejo de errores)
+export const createPedido = async (payload) => {
+  try {
+    const response = await api.post('/api/pedidos/', payload);
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.error || error.message || 'Error al crear el pedido';
+    throw new Error(errorMessage);
+  }
+};
+
+// Función para obtener pedidos del usuario logueado
+export const getMyPedidos = async () => {
+  try {
+    const response = await api.get('/api/pedidos/usuario/me');
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.error || error.message || 'Error al obtener pedidos';
+    throw new Error(errorMessage);
+  }
+};
+
+// Función para cambiar estado de un pedido
+export const changePedidoEstado = async (id_pedido, id_estado) => {
+  try {
+    const response = await api.put(`/api/pedidos/${id_pedido}/estado`, { id_estado });
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.error || error.message || 'Error al cambiar el estado del pedido';
+    throw new Error(errorMessage);
+  }
 };
 
 // Usuarios
@@ -105,6 +140,26 @@ export const usuarioRolesService = {
   create: (data) => api.post('/api/usuario-roles/', data),
   update: (id, data) => api.put(`/api/usuario-roles/${id}`, data),
   delete: (id) => api.delete(`/api/usuario-roles/${id}`),
+};
+
+// Métodos de Pago
+export const metodosPagoService = {
+  getAll: () => api.get('/api/metodos-pago/'),
+  getById: (id) => api.get(`/api/metodos-pago/${id}`),
+  create: (data) => api.post('/api/metodos-pago/', data),
+  update: (id, data) => api.put(`/api/metodos-pago/${id}`, data),
+  delete: (id) => api.delete(`/api/metodos-pago/${id}`),
+};
+
+// Función auxiliar para obtener métodos de pago
+export const getMetodosPago = async () => {
+  try {
+    const response = await api.get('/api/metodos-pago/');
+    return response.data || [];
+  } catch (error) {
+    console.error('Error al obtener métodos de pago:', error);
+    throw new Error('No se pudieron cargar los métodos de pago');
+  }
 };
 
 // Roles

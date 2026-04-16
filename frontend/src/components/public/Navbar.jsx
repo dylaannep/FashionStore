@@ -2,18 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { categoriasService, subcategoriasService } from '../../api/services';
 import { useAuthStore } from '../../store/authStore';
+import { useCart } from '../../store/CartContext';
 import { ChevronDown, Menu, X, ShoppingCart, Search, Heart, LogOut } from 'lucide-react';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuthStore();
+  const { itemCount } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [categorias, setCategorias] = useState([]);
   const [subcategorias, setSubcategorias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
 
   useEffect(() => {
@@ -180,14 +181,17 @@ export default function Navbar() {
           </button>
 
           {/* Shopping Cart */}
-          <button className="hidden md:flex p-2 hover:bg-gray-100 rounded-full transition relative">
+          <Link 
+            to="/carrito" 
+            className="hidden md:flex p-2 hover:bg-gray-100 rounded-full transition relative"
+          >
             <ShoppingCart size={20} />
-            {cartCount > 0 && (
+            {itemCount > 0 && (
               <span className="absolute top-1 right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {cartCount}
+                {itemCount}
               </span>
             )}
-          </button>
+          </Link>
 
           {/* Login / User Menu */}
           <div className="hidden md:flex items-center gap-2">
@@ -337,10 +341,14 @@ export default function Navbar() {
                   <Heart size={18} />
                   <span className="text-sm font-medium">Favoritos</span>
                 </button>
-                <button className="flex-1 flex items-center justify-center gap-2 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                <Link 
+                  to="/carrito"
+                  className="flex-1 flex items-center justify-center gap-2 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   <ShoppingCart size={18} />
                   <span className="text-sm font-medium">Carrito</span>
-                </button>
+                </Link>
               </div>
             </div>
           </div>

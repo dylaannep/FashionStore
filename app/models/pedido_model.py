@@ -14,6 +14,10 @@ class Pedido(db.Model):
     id_metodo_pago = db.Column('IdMetodoPago', db.Integer, db.ForeignKey('MetodosPago.IdMetodoPago'), nullable=False)
     fecha_pedido = db.Column('FechaPedido', db.DateTime, nullable=False, default=datetime.utcnow)
     total = db.Column('Total', db.Numeric(12,2), nullable=False)
+    # Información adicional del pedido
+    direccion = db.Column('Direccion', db.String(255), nullable=True)
+    telefono = db.Column('Telefono', db.String(20), nullable=True)
+    notas = db.Column('Notas', db.Text, nullable=True)
 
     # Relaciones
     usuario = db.relationship('Usuario', back_populates='pedidos')

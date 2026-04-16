@@ -5,6 +5,9 @@ import LoginPage from '../pages/LoginPage';
 import StorePage from '../pages/public/StorePage';
 import ProductoDetallePage from '../pages/public/ProductoDetallePage';
 import CategoryPage from '../pages/public/CategoryPage';
+import CartPage from '../pages/client/CartPage';
+import MisPedidosPage from '../pages/client/MisPedidosPage';
+import DetalleOrdenClientePage from '../pages/client/DetalleOrdenClientePage';
 import DashboardPage from '../pages/admin/DashboardPage';
 import AdminLayout from '../components/shared/AdminLayout';
 import CategoriasPage from '../pages/admin/CategoriasPage';
@@ -16,6 +19,7 @@ import ProductoVariantesPage from '../pages/admin/ProductoVariantesPage';
 import InventarioPage from '../pages/admin/InventarioPage';
 import MovimientosPage from '../pages/admin/MovimientosPage';
 import PedidosPage from '../pages/admin/PedidosPage';
+import PedidoDetallePage from '../pages/admin/PedidoDetallePage';
 import UsuariosPage from '../pages/admin/UsuariosPage';
 import UsuarioRolesPage from '../pages/admin/UsuarioRolesPage';
 
@@ -67,6 +71,31 @@ const router = createBrowserRouter([
     element: <StorePage />,
   },
   {
+    path: '/carrito',
+    element: <CartPage />,
+  },
+  {
+    path: '/cliente',
+    children: [
+      {
+        path: 'pedidos',
+        element: (
+          <ProtectedRoute>
+            <MisPedidosPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'pedidos/:id',
+        element: (
+          <ProtectedRoute>
+            <DetalleOrdenClientePage />
+          </ProtectedRoute>
+        ),
+      },
+    ],
+  },
+  {
     path: '/admin',
     element: (
       <ProtectedRoute adminOnly>
@@ -84,6 +113,7 @@ const router = createBrowserRouter([
       { path: 'inventario', element: <InventarioPage /> },
       { path: 'movimientos', element: <MovimientosPage /> },
       { path: 'pedidos', element: <PedidosPage /> },
+      { path: 'pedidos/:id', element: <PedidoDetallePage /> },
       { path: 'usuarios', element: <UsuariosPage /> },
       { path: 'usuario-roles', element: <UsuarioRolesPage /> },
       { index: true, element: <Navigate to="dashboard" /> },

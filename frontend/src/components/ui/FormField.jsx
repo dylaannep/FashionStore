@@ -10,12 +10,15 @@ const FormField = ({
   label,
   error,
   children,
+  name,
   type = "text",
   value,
   onChange,
   placeholder,
   options,
   required,
+  disabled = false,
+  rows = 4,
 }) => {
   const renderInput = () => {
     if (children) return children;
@@ -24,9 +27,11 @@ const FormField = ({
       case "select":
         return (
           <select
+            name={name}
             value={value || ''}
             onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={disabled}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           >
             <option value="">Seleccionar...</option>
             {options && options.map((option) => (
@@ -39,11 +44,13 @@ const FormField = ({
       case "textarea":
         return (
           <Textarea
+            name={name}
             value={value}
             onChange={onChange}
+            disabled={disabled}
             placeholder={placeholder}
-            rows={4}
-            className="w-full"
+            rows={rows}
+            className="w-full disabled:bg-gray-100 disabled:cursor-not-allowed"
             labelProps={{ className: "hidden" }}
           />
         );
@@ -54,7 +61,8 @@ const FormField = ({
               type="checkbox"
               checked={value}
               onChange={onChange}
-              className="cursor-pointer"
+              disabled={disabled}
+              className="cursor-pointer disabled:cursor-not-allowed"
             />
             <Typography variant="small" color="blue-gray">
               {value ? "Activo" : "Inactivo"}
@@ -64,9 +72,11 @@ const FormField = ({
       default:
         return (
           <Input
+            name={name}
             type={type}
             value={value}
             onChange={onChange}
+            disabled={disabled}
             placeholder={placeholder}
             size="lg"
             color="blue"
@@ -95,6 +105,7 @@ FormField.propTypes = {
   label: PropTypes.string.isRequired,
   error: PropTypes.string,
   children: PropTypes.node,
+  name: PropTypes.string,
   type: PropTypes.string,
   value: PropTypes.any,
   onChange: PropTypes.func,
@@ -106,6 +117,8 @@ FormField.propTypes = {
     })
   ),
   required: PropTypes.bool,
+  disabled: PropTypes.bool,
+  rows: PropTypes.number,
 };
 
 export default FormField;

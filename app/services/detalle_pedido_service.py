@@ -52,6 +52,12 @@ class DetallePedidoService:
         return True
 
     @staticmethod
+    def get_by_pedido(id_pedido):
+        """Obtiene todos los detalles de un pedido específico."""
+        detalles = DetallePedido.query.filter_by(id_pedido=id_pedido).all()
+        return detalles
+
+    @staticmethod
     def _parse_int(value, minimo=1):
         try:
             value = int(value)

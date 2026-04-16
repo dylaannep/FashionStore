@@ -42,6 +42,7 @@ class ProductoVariante(db.Model):
             stock = self.inventario.stock
         
         return {
+            'id': self.id_producto_variante,  # Agregar 'id' para compatibilidad
             'id_producto_variante': self.id_producto_variante,
             'id_producto': self.id_producto,
             'id_color': self.id_color,
@@ -52,5 +53,14 @@ class ProductoVariante(db.Model):
             'imagen_propia': self.imagen,  # Imagen específica de la variante (puede ser null)
             'activo': self.activo,
             'stock': stock,  # Stock del inventario
-            'fecha_creacion': self.fecha_creacion.isoformat() if self.fecha_creacion else None
+            'fecha_creacion': self.fecha_creacion.isoformat() if self.fecha_creacion else None,
+            # Agregar información del color y talla para el frontend
+            'color': {
+                'id': self.id_color,
+                'nombre': self.color.nombre if self.color else 'N/A'
+            } if self.color else {'id': self.id_color, 'nombre': 'N/A'},
+            'talla': {
+                'id': self.id_talla,
+                'nombre': self.talla.nombre if self.talla else 'N/A'
+            } if self.talla else {'id': self.id_talla, 'nombre': 'N/A'},
         }

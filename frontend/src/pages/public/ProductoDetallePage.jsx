@@ -4,10 +4,12 @@ import { ShoppingCart, Heart, Check, ChevronRight } from 'lucide-react';
 import Navbar from '../../components/public/Navbar';
 import Footer from '../../components/public/Footer';
 import { productosService, variantesService } from '../../api/services';
+import { useCart } from '../../store/CartContext';
 
 export default function ProductoDetallePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [producto, setProducto] = useState(null);
   const [variantes, setVariantes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -113,6 +115,28 @@ export default function ProductoDetallePage() {
   );
 
   const handleAddToCart = () => {
+    if (!varianteSeleccionada) {
+      console.error('No variant selected');
+      return;
+    }
+
+    // Obtener nombres de color y talla
+    const colorNombre = varianteSeleccionada.color?.nombre || 'N/A';
+    const tallaNombre = varianteSeleccionada.talla?.nombre || 'N/A';
+
+    // Agregar al carrito usando el contexto
+    addToCart({
+      id_producto_variante: varianteSeleccionada.id || varianteSeleccionada.id_producto_variante,
+      id_producto: producto.id || producto.id_producto,
+      nombre_producto: producto.nombre,
+      talla: tallaNombre,
+      color: colorNombre,
+      cantidad: quantity,
+      precio_unitario: varianteSeleccionada.precio,
+      imagen: varianteSeleccionada.imagen || producto.imagen
+    });
+
+    // Mostrar confirmación visual
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   };

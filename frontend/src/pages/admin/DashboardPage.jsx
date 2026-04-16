@@ -75,7 +75,11 @@ export default function DashboardPage() {
             {pedidos.map((pedido) => (
               <tr key={pedido.id} className="hover:bg-gray-50">
                 <td className="p-2">{pedido.id}</td>
-                <td className="p-2">{pedido.usuario}</td>
+                <td className="p-2">
+                  {typeof pedido.usuario === 'object' && pedido.usuario?.nombre 
+                    ? pedido.usuario.nombre 
+                    : pedido.usuario || 'N/A'}
+                </td>
                 <td className="p-2">${pedido.total}</td>
               </tr>
             ))}

@@ -77,6 +77,8 @@ const DataTable = ({
                       ) : (
                         <Chip color="red" value="Inactivo" />
                       )
+                    : typeof row[column.key] === 'object' && row[column.key] !== null
+                    ? JSON.stringify(row[column.key])
                     : row[column.key]}
                 </td>
               ))}
