@@ -32,15 +32,19 @@ export default function ProductoDetallePage() {
       setProducto(prodRes.data);
       
       // Filter variantes para este producto
-      const variantesProducto = varRes.data.filter(
-        (v) => v.producto_id === prodRes.data.id && (v.activo === true || v.activo === 1)
-      );
+      const prodId = prodRes.data.id_producto || prodRes.data.id;
+      const variantesProducto = varRes.data.filter((v) => {
+        const vProdId = v.id_producto || v.producto_id;
+        return vProdId === prodId && (v.activo === true || v.activo === 1);
+      });
       setVariantes(variantesProducto);
 
       // Select first variant by default
       if (variantesProducto.length > 0) {
-        setSelectedColor(variantesProducto[0].color_id);
-        setSelectedTalla(variantesProducto[0].talla_id);
+        const colorId = variantesProducto[0].id_color || variantesProducto[0].color_id;
+        const tallaId = variantesProducto[0].id_talla || variantesProducto[0].talla_id;
+        setSelectedColor(colorId);
+        setSelectedTalla(tallaId);
       }
     } catch (error) {
       console.error('Error cargando producto:', error);
@@ -88,16 +92,24 @@ export default function ProductoDetallePage() {
     );
   }
 
-  const varianteSeleccionada = variantes.find(
-    (v) => v.color_id === selectedColor && v.talla_id === selectedTalla
-  );
+  const varianteSeleccionada = variantes.find((v) => {
+    const vColorId = v.id_color || v.color_id;
+    const vTallaId = v.id_talla || v.talla_id;
+    return vColorId === selectedColor && vTallaId === selectedTalla;
+  });
 
   const coloresUnicos = Array.from(
-    new Map(variantes.map((v) => [v.color_id, v])).values()
+    new Map(variantes.map((v) => {
+      const colorId = v.id_color || v.color_id;
+      return [colorId, v];
+    })).values()
   );
 
   const tallasUnicos = Array.from(
-    new Map(variantes.map((v) => [v.talla_id, v])).values()
+    new Map(variantes.map((v) => {
+      const tallaId = v.id_talla || v.talla_id;
+      return [tallaId, v];
+    })).values()
   );
 
   const handleAddToCart = () => {
@@ -227,12 +239,14 @@ export default function ProductoDetallePage() {
               <div className="mb-8">
                 <h3 className="font-bold text-gray-900 mb-4 text-lg">Color</h3>
                 <div className="flex flex-wrap gap-3">
-                  {coloresUnicos.map((v) => (
+                  {coloresUnicos.map((v) => {
+                    const vColorId = v.id_color || v.color_id;
+                    return (
                     <button
-                      key={v.color_id}
-                      onClick={() => setSelectedColor(v.color_id)}
+                      key={vColorId}
+                      onClick={() => setSelectedColor(vColorId)}
                       className={`w-12 h-12 rounded-full border-2 transition flex items-center justify-center shadow-sm hover:shadow-md ${
-                        v.color_id === selectedColor
+                        vColorId === selectedColor
                           ? 'border-red-600 ring-2 ring-red-300 scale-110'
                           : 'border-gray-300 hover:border-gray-900'
                       }`}
@@ -243,7 +257,8 @@ export default function ProductoDetallePage() {
                         <Check size={20} className="text-white drop-shadow" />
                       )}
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -253,19 +268,22 @@ export default function ProductoDetallePage() {
               <div className="mb-8">
                 <h3 className="font-bold text-gray-900 mb-4 text-lg">Talla</h3>
                 <div className="grid grid-cols-4 gap-2">
-                  {tallasUnicos.map((v) => (
+                  {tallasUnicos.map((v) => {
+                    const vTallaId = v.id_talla || v.talla_id;
+                    return (
                     <button
-                      key={v.talla_id}
-                      onClick={() => setSelectedTalla(v.talla_id)}
+                      key={vTallaId}
+                      onClick={() => setSelectedTalla(vTallaId)}
                       className={`py-3 px-4 text-sm font-semibold rounded-lg border-2 transition ${
-                        v.talla_id === selectedTalla
+                        vTallaId === selectedTalla
                           ? 'bg-red-600 text-white border-red-600'
                           : 'bg-white text-gray-900 border-gray-300 hover:border-gray-900'
                       }`}
                     >
                       {v.talla?.nombre}
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

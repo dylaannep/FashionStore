@@ -75,33 +75,48 @@ export default function CategoryPage() {
 
   const aplicarFiltros = (productosActuales) => {
     return productosActuales.filter((producto) => {
+      const prodId = producto.id_producto || producto.id;
+      const subCatId = producto.id_subcategoria || producto.subcategoria_id;
+      
       // Filter por categoría
-      if (filtros.categoria && producto.categoria_id !== filtros.categoria) {
+      if (filtros.categoria && filtros.categoria !== parseInt(id)) {
         return false;
       }
 
       // Filter por subcategoría
-      if (filtros.subcategoria && producto.subcategoria_id !== filtros.subcategoria) {
+      if (filtros.subcategoria && subCatId !== filtros.subcategoria) {
         return false;
       }
 
       // Filter por talla y color (via variantes)
-      const variantesDelProducto = variantes.filter((v) => v.producto_id === producto.id);
+      const variantesDelProducto = variantes.filter((v) => {
+        const vProdId = v.id_producto || v.producto_id;
+        return vProdId === prodId;
+      });
 
       if (filtros.tallas.length > 0) {
-        const tieneTalla = variantesDelProducto.some((v) => filtros.tallas.includes(v.talla_id));
+        const tallaIds = filtros.tallas;
+        const tieneTalla = variantesDelProducto.some((v) => {
+          const vTallaId = v.id_talla || v.talla_id;
+          return tallaIds.includes(vTallaId);
+        });
         if (!tieneTalla) return false;
       }
 
       if (filtros.colores.length > 0) {
-        const tieneColor = variantesDelProducto.some((v) => filtros.colores.includes(v.color_id));
+        const colorIds = filtros.colores;
+        const tieneColor = variantesDelProducto.some((v) => {
+          const vColorId = v.id_color || v.color_id;
+          return colorIds.includes(vColorId);
+        });
         if (!tieneColor) return false;
       }
 
       // Filter por precio
       if (variantesDelProducto.length > 0) {
-        const precioMin = Math.min(...variantesDelProducto.map((v) => v.precio));
-        const precioMax = Math.max(...variantesDelProducto.map((v) => v.precio));
+        const precios = variantesDelProducto.map((v) => v.precio || 0);
+        const precioMin = Math.min(...precios);
+        const precioMax = Math.max(...precios);
 
         if (precioMin > filtros.precioMax || precioMax < filtros.precioMin) {
           return false;
@@ -115,17 +130,34 @@ export default function CategoryPage() {
   const productosFiltratos = aplicarFiltros(productos);
 
   const productosOrdenados = [...productosFiltratos].sort((a, b) => {
+    const aId = a.id_producto || a.id;
+    const bId = b.id_producto || b.id;
+    
     switch (sortBy) {
       case 'nuevo':
         return new Date(b.fecha_creacion || 0) - new Date(a.fecha_creacion || 0);
-      case 'precio-bajo':
-        const minA = Math.min(...variantes.filter((v) => v.producto_id === a.id).map((v) => v.precio) || [Infinity]);
-        const minB = Math.min(...variantes.filter((v) => v.producto_id === b.id).map((v) => v.precio) || [Infinity]);
+      case 'precio-bajo': {
+        const minA = Math.min(...variantes.filter((v) => {
+          const vProdId = v.id_producto || v.producto_id;
+          return vProdId === aId;
+        }).map((v) => v.precio || 0) || [Infinity]);
+        const minB = Math.min(...variantes.filter((v) => {
+          const vProdId = v.id_producto || v.producto_id;
+          return vProdId === bId;
+        }).map((v) => v.precio || 0) || [Infinity]);
         return minA - minB;
-      case 'precio-alto':
-        const maxA = Math.max(...variantes.filter((v) => v.producto_id === a.id).map((v) => v.precio) || [0]);
-        const maxB = Math.max(...variantes.filter((v) => v.producto_id === b.id).map((v) => v.precio) || [0]);
+      }
+      case 'precio-alto': {
+        const maxA = Math.max(...variantes.filter((v) => {
+          const vProdId = v.id_producto || v.producto_id;
+          return vProdId === aId;
+        }).map((v) => v.precio || 0) || [0]);
+        const maxB = Math.max(...variantes.filter((v) => {
+          const vProdId = v.id_producto || v.producto_id;
+          return vProdId === bId;
+        }).map((v) => v.precio || 0) || [0]);
         return maxB - maxA;
+      }
       case 'popular':
         return (b.vistas || 0) - (a.vistas || 0);
       default:
@@ -134,7 +166,10 @@ export default function CategoryPage() {
   });
 
   const obtenerVariantesDelProducto = (productoId) => {
-    return variantes.filter((v) => v.producto_id === productoId);
+    return variantes.filter((v) => {
+      const vProdId = v.id_producto || v.producto_id;
+      return vProdId === productoId;
+    });
   };
 
   return (
@@ -254,11 +289,12 @@ export default function CategoryPage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {productosOrdenados.map((producto) => {
-                  const variantesProducto = obtenerVariantesDelProducto(producto.id);
+                  const prodId = producto.id_producto || producto.id;
+                  const variantesProducto = obtenerVariantesDelProducto(prodId);
                   const variantePrincipal = variantesProducto[0];
                   return (
                     <ProductoCard
-                      key={producto.id}
+                      key={prodId}
                       producto={producto}
                       variant={variantePrincipal}
                     />

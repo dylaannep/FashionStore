@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ArrowRight, Zap } from 'lucide-react';
 import Navbar from '../../components/public/Navbar';
 import Footer from '../../components/public/Footer';
@@ -8,6 +8,7 @@ import ProductoCard from '../../components/public/ProductoCard';
 import { productosService, variantesService, categoriasService, subcategoriasService, coloresService, tallasService } from '../../api/services';
 
 export default function StorePage() {
+  const location = useLocation();
   const [productos, setProductos] = useState([]);
   const [variantes, setVariantes] = useState([]);
   const [categorias, setCategorias] = useState([]);
@@ -24,6 +25,11 @@ export default function StorePage() {
     precioMax: 1000000,
   });
   const [sortBy, setSortBy] = useState('nuevo');
+
+  // Determinar si es Nuevos u Ofertas basado en la ruta
+  const isNuevos = location.pathname === '/nuevos';
+  const isOfertas = location.pathname === '/ofertas';
+  const pageTitle = isNuevos ? 'Productos Nuevos' : isOfertas ? 'Ofertas Especiales' : 'Todos los Productos';
 
   useEffect(() => {
     fetchAllData();
@@ -42,14 +48,45 @@ export default function StorePage() {
       ]);
 
       // Filter solo productos activos
-      setProductos(prodRes.data.filter((p) => p.activo === true || p.activo === 1));
+      let productosActivos = prodRes.data.filter((p) => p.activo === true || p.activo === 1);
+
+      // Si es página de Nuevos, filtrar productos de los últimos 7 días
+      if (isNuevos) {
+        const hace7Dias = new Date();
+        hace7Dias.setDate(hace7Dias.getDate() - 7);
+        productosActivos = productosActivos.filter((p) => {
+          const fechaCreacion = new Date(p.fecha_creacion);
+          return fechaCreacion >= hace7Dias;
+        });
+      }
+
+      // Si es página de Ofertas, filtrar productos con descuento > 0
+      if (isOfertas) {
+        // Primero obtener variantes activas para verificar si tienen descuento
+        const variantesActivas = varRes.data.filter((v) => (v.activo === true || v.activo === 1) && v.stock > 0);
+        const productosConDescuento = new Set();
+        variantesActivas.forEach((v) => {
+          if (v.descuento > 0) {
+            productosConDescuento.add(v.producto_id);
+          }
+        });
+        productosActivos = productosActivos.filter((p) => productosConDescuento.has(p.id));
+      }
+
+      setProductos(productosActivos);
       
       // Filter solo variantes activas con inventario disponible
       const variantesActivas = varRes.data.filter((v) => (v.activo === true || v.activo === 1) && v.stock > 0);
       setVariantes(variantesActivas);
       
-      setCategorias(catRes.data);
-      setSubcategorias(subRes.data);
+      // Filtrar solo categorías activas
+      const categoriasActivas = catRes.data.filter((c) => c.activo === true || c.activo === 1);
+      setCategorias(categoriasActivas);
+      
+      // Filtrar solo subcategorías activas
+      const subcategoriasActivas = subRes.data.filter((s) => s.activo === true || s.activo === 1);
+      setSubcategorias(subcategoriasActivas);
+      
       setColores(colRes.data);
       setTallas(talRes.data);
     } catch (error) {
@@ -61,35 +98,59 @@ export default function StorePage() {
 
   const aplicarFiltros = (productosActuales) => {
     return productosActuales.filter((producto) => {
+      const prodId = producto.id_producto || producto.id;
+      const subCatId = producto.id_subcategoria || producto.subcategoria_id;
+      
       // Filter por categoría
-      if (filtros.categoria && producto.categoria_id !== filtros.categoria) {
-        return false;
+      if (filtros.categoria) {
+        // Buscar la subcategoría del producto para verificar su categoría
+        const subCatDelProd = subcategorias.find(s => {
+          const sId = s.id_subcategoria || s.id;
+          return sId === subCatId;
+        });
+        if (!subCatDelProd) return false;
+        const catId = subCatDelProd.id_categoria || subCatDelProd.categoria_id;
+        if (catId !== filtros.categoria) return false;
       }
 
       // Filter por subcategoría
-      if (filtros.subcategoria && producto.subcategoria_id !== filtros.subcategoria) {
+      if (filtros.subcategoria && subCatId !== filtros.subcategoria) {
         return false;
       }
 
       // Filter por talla y color (via variantes)
-      const variantesDelProducto = variantes.filter((v) => v.producto_id === producto.id);
+      const variantesDelProducto = variantes.filter((v) => {
+        const vProdId = v.id_producto || v.producto_id;
+        return vProdId === prodId;
+      });
       
       if (filtros.tallas.length > 0) {
-        const tieneTalla = variantesDelProducto.some((v) => filtros.tallas.includes(v.talla_id));
+        const tallaIds = filtros.tallas;
+        const tieneTalla = variantesDelProducto.some((v) => {
+          const vTallaId = v.id_talla || v.talla_id;
+          return tallaIds.includes(vTallaId);
+        });
         if (!tieneTalla) return false;
       }
 
       if (filtros.colores.length > 0) {
-        const tieneColor = variantesDelProducto.some((v) => filtros.colores.includes(v.color_id));
+        const colorIds = filtros.colores;
+        const tieneColor = variantesDelProducto.some((v) => {
+          const vColorId = v.id_color || v.color_id;
+          return colorIds.includes(vColorId);
+        });
         if (!tieneColor) return false;
       }
 
       // Filter por precio
-      const precioMin = Math.min(...variantesDelProducto.map((v) => v.precio));
-      const precioMax = Math.max(...variantesDelProducto.map((v) => v.precio));
-      
-      if (precioMin > filtros.precioMax || precioMax < filtros.precioMin) {
-        return false;
+      if (variantesDelProducto.length > 0) {
+        const precios = variantesDelProducto.map((v) => v.precio || 0);
+        const precioMin = Math.min(...precios);
+        const precioMax = Math.max(...precios);
+        
+        if (precioMin > filtros.precioMax || precioMax < filtros.precioMin) {
+          return false;
+        }
       }
 
       return true;
@@ -99,15 +160,34 @@ export default function StorePage() {
   const productosFiltratos = aplicarFiltros(productos);
 
   const productosOrdenados = [...productosFiltratos].sort((a, b) => {
+    const aId = a.id_producto || a.id;
+    const bId = b.id_producto || b.id;
+    
     switch (sortBy) {
       case 'nuevo':
         return new Date(b.fecha_creacion || 0) - new Date(a.fecha_creacion || 0);
-      case 'precio-bajo':
-        return Math.min(...variantes.filter((v) => v.producto_id === a.id).map((v) => v.precio)) -
-               Math.min(...variantes.filter((v) => v.producto_id === b.id).map((v) => v.precio));
-      case 'precio-alto':
-        return Math.max(...variantes.filter((v) => v.producto_id === b.id).map((v) => v.precio)) -
-               Math.max(...variantes.filter((v) => v.producto_id === a.id).map((v) => v.precio));
+      case 'precio-bajo': {
+        const minA = Math.min(...variantes.filter((v) => {
+          const vProdId = v.id_producto || v.producto_id;
+          return vProdId === aId;
+        }).map((v) => v.precio || 0) || [Infinity]);
+        const minB = Math.min(...variantes.filter((v) => {
+          const vProdId = v.id_producto || v.producto_id;
+          return vProdId === bId;
+        }).map((v) => v.precio || 0) || [Infinity]);
+        return minA - minB;
+      }
+      case 'precio-alto': {
+        const maxA = Math.max(...variantes.filter((v) => {
+          const vProdId = v.id_producto || v.producto_id;
+          return vProdId === aId;
+        }).map((v) => v.precio || 0) || [0]);
+        const maxB = Math.max(...variantes.filter((v) => {
+          const vProdId = v.id_producto || v.producto_id;
+          return vProdId === bId;
+        }).map((v) => v.precio || 0) || [0]);
+        return maxB - maxA;
+      }
       case 'popular':
         return (b.vistas || 0) - (a.vistas || 0);
       default:
@@ -116,7 +196,10 @@ export default function StorePage() {
   });
 
   const obtenerVariantesDelProducto = (productoId) => {
-    return variantes.filter((v) => v.producto_id === productoId);
+    return variantes.filter((v) => {
+      const vProdId = v.id_producto || v.producto_id;
+      return vProdId === productoId;
+    });
   };
 
   return (
@@ -137,13 +220,17 @@ export default function StorePage() {
         <div className="absolute inset-0 flex items-center justify-center text-center text-white px-4 z-10">
           <div className="max-w-3xl">
             <span className="inline-block text-red-500 font-semibold text-sm md:text-base mb-4 uppercase tracking-widest">
-              ✨ Colección Exclusiva 2025
+              {isNuevos ? '✨ Lo Más Reciente' : isOfertas ? '🎉 Descuentos Especiales' : '✨ Colección Exclusiva 2025'}
             </span>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 tracking-tight leading-tight">
-              Estilo Premium
+              {pageTitle}
             </h1>
             <p className="text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 md:mb-10 max-w-2xl mx-auto leading-relaxed">
-              Descubre las últimas tendencias en moda exclusiva inspirada en marcas de lujo como Nike y Zara
+              {isNuevos 
+                ? 'Descubre los productos agregados en los últimos 7 días'
+                : isOfertas 
+                ? 'Aprovecha nuestras ofertas especiales con descuentos increíbles'
+                : 'Descubre las últimas tendencias en moda exclusiva inspirada en marcas de lujo como Nike y Zara'}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="inline-flex items-center justify-center gap-2 bg-red-600 text-white px-8 md:px-10 py-3 md:py-4 font-semibold hover:bg-red-700 transition transform hover:scale-105">
@@ -178,10 +265,12 @@ export default function StorePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {categorias.slice(0, 3).map((cat, index) => (
+          {categorias.slice(0, 3).map((cat, index) => {
+            const catId = cat.id_categoria || cat.id;
+            return (
             <Link
-              key={cat.id}
-              to={`/categoria/${cat.id}`}
+              key={catId}
+              to={`/categoria/${catId}`}
               className="group relative h-80 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
             >
               {/* Background Gradient */}
@@ -212,7 +301,8 @@ export default function StorePage() {
                 {index === 0 ? '👟' : index === 1 ? '👕' : '🎒'}
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -291,11 +381,12 @@ export default function StorePage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {productosOrdenados.map((producto) => {
-                  const variantesProducto = obtenerVariantesDelProducto(producto.id);
+                  const prodId = producto.id_producto || producto.id;
+                  const variantesProducto = obtenerVariantesDelProducto(prodId);
                   const variantePrincipal = variantesProducto[0];
                   return (
                     <ProductoCard
-                      key={producto.id}
+                      key={prodId}
                       producto={producto}
                       variant={variantePrincipal}
                     />

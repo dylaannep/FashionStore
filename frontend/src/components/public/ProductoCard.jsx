@@ -14,6 +14,10 @@ export default function ProductoCard({ producto, variant }) {
   const precioOriginal = variant?.precio_original || 0;
   const rating = producto?.rating || 4.5;
   const numResenas = producto?.num_resenas || 0;
+  
+  // Obtener stock - puede venir de variante o de producto
+  const stock = variant?.stock !== undefined ? variant.stock : producto?.stock ?? 0;
+  const tieneStock = stock > 0;
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('es-CO', {
@@ -24,7 +28,7 @@ export default function ProductoCard({ producto, variant }) {
   };
 
   return (
-    <Link to={`/producto/${producto?.id}`} className="group">
+    <Link to={`/producto/${producto?.id_producto || producto?.id}`} className="group">
       <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300">
         {/* Image Container */}
         <div
@@ -89,7 +93,7 @@ export default function ProductoCard({ producto, variant }) {
           </div>
 
           {/* Stock Status Overlay */}
-          {variant?.stock === 0 && (
+          {!tieneStock && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
               <div className="text-center">
                 <span className="text-white font-bold text-lg block mb-1">AGOTADO</span>
@@ -157,11 +161,11 @@ export default function ProductoCard({ producto, variant }) {
 
           {/* Stock Indicator */}
           <div className="pt-3 border-t border-gray-100">
-            {variant?.stock > 0 ? (
+            {tieneStock ? (
               <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${variant.stock <= 3 ? 'bg-orange-500' : 'bg-green-500'}`} />
-                <span className={`text-xs font-medium ${variant.stock <= 3 ? 'text-orange-600' : 'text-green-600'}`}>
-                  {variant.stock <= 3 ? 'Pocas unidades disponibles' : 'En stock'}
+                <div className={`w-2 h-2 rounded-full ${stock <= 3 ? 'bg-orange-500' : 'bg-green-500'}`} />
+                <span className={`text-xs font-medium ${stock <= 3 ? 'text-orange-600' : 'text-green-600'}`}>
+                  {stock <= 3 ? 'Pocas unidades disponibles' : 'En stock'}
                 </span>
               </div>
             ) : (

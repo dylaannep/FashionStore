@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { categoriasService, subcategoriasService } from '../../api/services';
-import { ChevronDown, Menu, X, ShoppingCart, Search, Heart } from 'lucide-react';
+import { useAuthStore } from '../../store/authStore';
+import { ChevronDown, Menu, X, ShoppingCart, Search, Heart, LogOut } from 'lucide-react';
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuthStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [categorias, setCategorias] = useState([]);
   const [subcategorias, setSubcategorias] = useState([]);
@@ -24,8 +26,12 @@ export default function Navbar() {
         categoriasService.getAll(),
         subcategoriasService.getAll()
       ]);
-      setCategorias(catRes.data);
-      setSubcategorias(subRes.data);
+      // Filtrar solo categorías activas
+      const categoriasActivas = catRes.data.filter(cat => cat.activo === true || cat.activo === 1);
+      setCategorias(categoriasActivas);
+      // Filtrar solo subcategorías activas
+      const subcategoriasActivas = subRes.data.filter(sub => sub.activo === true || sub.activo === 1);
+      setSubcategorias(subcategoriasActivas);
     } catch (error) {
       console.error('Error cargando categorías:', error);
     } finally {
@@ -37,12 +43,28 @@ export default function Navbar() {
     return subcategorias.filter((sub) => sub.categoria_id === categoriaId);
   };
 
+  const getCategoriaId = (cat) => {
+    // El API puede devolver id o id_categoria
+    return cat.id || cat.id_categoria;
+  };
+
+  const getSubcategoriaId = (sub) => {
+    // El API puede devolver id o id_subcategoria
+    return sub.id || sub.id_subcategoria;
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/buscar?q=${encodeURIComponent(searchQuery)}`);
       setSearchQuery('');
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    setIsMenuOpen(false);
   };
 
   return (
@@ -85,26 +107,30 @@ export default function Navbar() {
               ) : (
                 <div className="grid grid-cols-3 gap-8 px-8">
                   {categorias.map((cat) => {
-                    const subs = getSubcategoriasPorCategoria(cat.id);
+                    const catId = getCategoriaId(cat);
+                    const subs = getSubcategoriasPorCategoria(catId);
                     return (
-                      <div key={cat.id}>
+                      <div key={catId}>
                         <Link
-                          to={`/categoria/${cat.id}`}
+                          to={`/categoria/${catId}`}
                           className="block text-sm font-bold text-gray-900 mb-3 hover:text-red-600 transition"
                         >
                           {cat.nombre}
                         </Link>
                         <ul className="space-y-2">
-                          {subs.map((sub) => (
-                            <li key={sub.id}>
-                              <Link
-                                to={`/categoria/${cat.id}?subcategoria=${sub.id}`}
-                                className="text-xs text-gray-600 hover:text-gray-900 transition"
-                              >
-                                {sub.nombre}
-                              </Link>
-                            </li>
-                          ))}
+                          {subs.map((sub) => {
+                            const subId = getSubcategoriaId(sub);
+                            return (
+                              <li key={subId}>
+                                <Link
+                                  to={`/categoria/${catId}?subcategoria=${subId}`}
+                                  className="text-xs text-gray-600 hover:text-gray-900 transition"
+                                >
+                                  {sub.nombre}
+                                </Link>
+                              </li>
+                            );
+                          })}
                         </ul>
                       </div>
                     );
@@ -162,6 +188,29 @@ export default function Navbar() {
               </span>
             )}
           </button>
+
+          {/* Login / User Menu */}
+          <div className="hidden md:flex items-center gap-2">
+            {isAuthenticated ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-900">{user?.nombre || 'Usuario'}</span>
+                <button
+                  onClick={handleLogout}
+                  className="p-2 hover:bg-gray-100 rounded-full transition"
+                  title="Cerrar sesión"
+                >
+                  <LogOut size={20} />
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition"
+              >
+                Iniciar sesión
+              </Link>
+            )}
+          </div>
 
           {/* Mobile Menu Button */}
           <button
@@ -260,15 +309,39 @@ export default function Navbar() {
             </Link>
 
             {/* Mobile Cart & Wishlist */}
-            <div className="border-t border-gray-100 pt-4 mt-4 flex gap-4">
-              <button className="flex-1 flex items-center justify-center gap-2 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
-                <Heart size={18} />
-                <span className="text-sm font-medium">Favoritos</span>
-              </button>
-              <button className="flex-1 flex items-center justify-center gap-2 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
-                <ShoppingCart size={18} />
-                <span className="text-sm font-medium">Carrito</span>
-              </button>
+            <div className="border-t border-gray-100 pt-4 mt-4 flex flex-col gap-3">
+              {isAuthenticated ? (
+                <>
+                  <div className="px-3 py-2 bg-gray-50 rounded-lg">
+                    <p className="text-sm font-medium text-gray-900">{user?.nombre || 'Usuario'}</p>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center justify-center gap-2 py-2 px-3 text-red-600 hover:bg-red-50 rounded-lg transition text-sm font-medium"
+                  >
+                    <LogOut size={18} />
+                    Cerrar sesión
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/login"
+                  className="flex items-center justify-center gap-2 py-2 px-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Iniciar sesión
+                </Link>
+              )}
+              <div className="flex gap-3">
+                <button className="flex-1 flex items-center justify-center gap-2 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                  <Heart size={18} />
+                  <span className="text-sm font-medium">Favoritos</span>
+                </button>
+                <button className="flex-1 flex items-center justify-center gap-2 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                  <ShoppingCart size={18} />
+                  <span className="text-sm font-medium">Carrito</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

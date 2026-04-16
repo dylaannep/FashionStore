@@ -32,23 +32,28 @@ export default function ProductFilters({ categorias, subcategorias, colores, tal
   };
 
   const handleCategoriaChange = (categoriaId) => {
+    // Toggle: si ya está seleccionado, deseleccionar; si no, seleccionar
+    const newCategoria = filters.categoria === categoriaId ? null : categoriaId;
     const newFilters = {
       ...filters,
-      categoria: filters.categoria === categoriaId ? null : categoriaId,
+      categoria: newCategoria,
       subcategoria: null, // Reset subcategory when category changes
     };
     handleFilterChange(newFilters);
   };
 
   const handleSubcategoriaChange = (subcategoriaId) => {
+    // Toggle: si ya está seleccionado, deseleccionar; si no, seleccionar
+    const newSubcategoria = filters.subcategoria === subcategoriaId ? null : subcategoriaId;
     const newFilters = {
       ...filters,
-      subcategoria: filters.subcategoria === subcategoriaId ? null : subcategoriaId,
+      subcategoria: newSubcategoria,
     };
     handleFilterChange(newFilters);
   };
 
   const handleTallaChange = (tallaId) => {
+    // Toggle: agregar o quitar de la lista
     const newFilters = {
       ...filters,
       tallas: filters.tallas.includes(tallaId)
@@ -59,6 +64,7 @@ export default function ProductFilters({ categorias, subcategorias, colores, tal
   };
 
   const handleColorChange = (colorId) => {
+    // Toggle: agregar o quitar de la lista
     const newFilters = {
       ...filters,
       colores: filters.colores.includes(colorId)
@@ -78,22 +84,16 @@ export default function ProductFilters({ categorias, subcategorias, colores, tal
   };
 
   const clearFilters = () => {
-    setFilters({
+    const cleanFilters = {
       categoria: null,
       subcategoria: null,
       tallas: [],
       colores: [],
       precioMin: 0,
       precioMax: 1000000,
-    });
-    onFilterChange({
-      categoria: null,
-      subcategoria: null,
-      tallas: [],
-      colores: [],
-      precioMin: 0,
-      precioMax: 1000000,
-    });
+    };
+    setFilters(cleanFilters);
+    onFilterChange(cleanFilters);
   };
 
   const hasActiveFilters =
@@ -104,8 +104,16 @@ export default function ProductFilters({ categorias, subcategorias, colores, tal
     filters.precioMin > 0 ||
     filters.precioMax < 1000000;
 
+  // Filtrar subcategorías según categoría seleccionada
+  const subcategoriasDisponibles = filters.categoria
+    ? subcategorias.filter((sub) => {
+        const catId = sub.id_categoria || sub.categoria_id;
+        return catId === filters.categoria;
+      })
+    : subcategorias;
+
   return (
-    <div className="w-full md:w-64 bg-white rounded-lg p-4 md:p-6 h-fit">
+    <div className="w-full md:w-64 bg-white rounded-lg p-4 md:p-6 h-fit md:sticky md:top-24">
       {/* Filter Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-bold">Filtros</h2>
@@ -133,17 +141,31 @@ export default function ProductFilters({ categorias, subcategorias, colores, tal
         </button>
         {expandedFilters.categoria && (
           <div className="mt-3 space-y-2">
-            {categorias.map((cat) => (
-              <label key={cat.id} className="flex items-center gap-2 cursor-pointer">
+            {categorias.map((cat) => {
+              const catId = cat.id_categoria || cat.id;
+              return (
+              <label key={catId} className="flex items-center gap-2 cursor-pointer group">
                 <input
-                  type="checkbox"
-                  checked={filters.categoria === cat.id}
-                  onChange={() => handleCategoriaChange(cat.id)}
+                  type="radio"
+                  name="categoria"
+                  checked={filters.categoria === catId}
+                  onChange={() => handleCategoriaChange(catId)}
                   className="w-4 h-4 text-blue-600 rounded focus:ring-0"
                 />
-                <span className="text-sm text-gray-600">{cat.nombre}</span>
+                <span className="text-sm text-gray-600 group-hover:text-gray-900 transition">
+                  {cat.nombre}
+                </span>
               </label>
-            ))}
+              );
+            })}
+            {filters.categoria && (
+              <button
+                onClick={() => handleCategoriaChange(null)}
+                className="text-xs text-blue-600 hover:text-blue-800 font-semibold mt-2 block"
+              >
+                Limpiar categoría
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -162,17 +184,37 @@ export default function ProductFilters({ categorias, subcategorias, colores, tal
         </button>
         {expandedFilters.subcategoria && (
           <div className="mt-3 space-y-2">
-            {subcategorias.map((subcat) => (
-              <label key={subcat.id} className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={filters.subcategoria === subcat.id}
-                  onChange={() => handleSubcategoriaChange(subcat.id)}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-0"
-                />
-                <span className="text-sm text-gray-600">{subcat.nombre}</span>
-              </label>
-            ))}
+            {subcategoriasDisponibles.length === 0 ? (
+              <p className="text-sm text-gray-500 italic">Selecciona una categoría primero</p>
+            ) : (
+              <>
+                {subcategoriasDisponibles.map((subcat) => {
+                  const subId = subcat.id_subcategoria || subcat.id;
+                  return (
+                  <label key={subId} className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="radio"
+                      name="subcategoria"
+                      checked={filters.subcategoria === subId}
+                      onChange={() => handleSubcategoriaChange(subId)}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-0"
+                    />
+                    <span className="text-sm text-gray-600 group-hover:text-gray-900 transition">
+                      {subcat.nombre}
+                    </span>
+                  </label>
+                  );
+                })}
+                {filters.subcategoria && (
+                  <button
+                    onClick={() => handleSubcategoriaChange(null)}
+                    className="text-xs text-blue-600 hover:text-blue-800 font-semibold mt-2 block"
+                  >
+                    Limpiar subcategoría
+                  </button>
+                )}
+              </>
+            )}
           </div>
         )}
       </div>
@@ -191,19 +233,22 @@ export default function ProductFilters({ categorias, subcategorias, colores, tal
         </button>
         {expandedFilters.talla && (
           <div className="mt-3 grid grid-cols-3 gap-2">
-            {tallas.map((talla) => (
+            {tallas.map((talla) => {
+              const tallaId = talla.id_talla || talla.id;
+              return (
               <button
-                key={talla.id}
-                onClick={() => handleTallaChange(talla.id)}
+                key={tallaId}
+                onClick={() => handleTallaChange(tallaId)}
                 className={`py-2 px-3 text-sm font-medium rounded border transition ${
-                  filters.tallas.includes(talla.id)
+                  filters.tallas.includes(tallaId)
                     ? 'bg-black text-white border-black'
                     : 'bg-white text-gray-900 border-gray-300 hover:border-gray-900'
                 }`}
               >
                 {talla.nombre}
               </button>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -222,19 +267,22 @@ export default function ProductFilters({ categorias, subcategorias, colores, tal
         </button>
         {expandedFilters.color && (
           <div className="mt-3 grid grid-cols-5 gap-2">
-            {colores.map((color) => (
+            {colores.map((color) => {
+              const colorId = color.id_color || color.id;
+              return (
               <button
-                key={color.id}
-                onClick={() => handleColorChange(color.id)}
+                key={colorId}
+                onClick={() => handleColorChange(colorId)}
                 className={`w-8 h-8 rounded-full border-2 transition ${
-                  filters.colores.includes(color.id)
+                  filters.colores.includes(colorId)
                     ? 'border-black scale-110'
                     : 'border-gray-300 hover:border-gray-900'
                 }`}
                 style={{ backgroundColor: color.codigo_hex }}
                 title={color.nombre}
               />
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
