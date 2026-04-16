@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowRight, Zap } from 'lucide-react';
+import { ArrowRight, Zap, Truck, RotateCcw, Shirt, Package, ShoppingBag } from 'lucide-react';
 import Navbar from '../../components/public/Navbar';
 import Footer from '../../components/public/Footer';
 import ProductFilters from '../../components/public/ProductFilters';
@@ -220,7 +220,7 @@ export default function StorePage() {
         <div className="absolute inset-0 flex items-center justify-center text-center text-white px-4 z-10">
           <div className="max-w-3xl">
             <span className="inline-block text-red-500 font-semibold text-sm md:text-base mb-4 uppercase tracking-widest">
-              {isNuevos ? '✨ Lo Más Reciente' : isOfertas ? '🎉 Descuentos Especiales' : '✨ Colección Exclusiva 2025'}
+              {isNuevos ? 'Lo Más Reciente' : isOfertas ? 'Descuentos Especiales' : 'Colección Exclusiva 2025'}
             </span>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 tracking-tight leading-tight">
               {pageTitle}
@@ -230,7 +230,7 @@ export default function StorePage() {
                 ? 'Descubre los productos agregados en los últimos 7 días'
                 : isOfertas 
                 ? 'Aprovecha nuestras ofertas especiales con descuentos increíbles'
-                : 'Descubre las últimas tendencias en moda exclusiva inspirada en marcas de lujo como Nike y Zara'}
+                : 'Descubre las últimas tendencias en moda exclusiva inspirada en marcas de lujo'}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="inline-flex items-center justify-center gap-2 bg-red-600 text-white px-8 md:px-10 py-3 md:py-4 font-semibold hover:bg-red-700 transition transform hover:scale-105">
@@ -297,8 +297,8 @@ export default function StorePage() {
               </div>
 
               {/* Icon Badge */}
-              <div className="absolute top-6 right-6 w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform">
-                {index === 0 ? '👟' : index === 1 ? '👕' : '🎒'}
+              <div className="absolute top-6 right-6 w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                {index === 0 ? <Package size={32} /> : index === 1 ? <Shirt size={32} /> : <ShoppingBag size={32} />}
               </div>
             </Link>
             );
@@ -412,12 +412,12 @@ export default function StorePage() {
             <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-8 md:p-12 text-white shadow-lg hover:shadow-xl transition">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="text-2xl md:text-3xl font-bold mb-2">Envío Gratis</h3>
-                  <p className="text-blue-100">
+                  <h3 className="text-2xl md:text-3xl font-bold mb-2 text-white">Envío Gratis</h3>
+                  <p className="text-white">
                     En todas las compras mayores a $50.000
                   </p>
                 </div>
-                <span className="text-5xl">🚚</span>
+                <Truck size={40} className="flex-shrink-0" />
               </div>
               <button className="mt-4 inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-2 font-semibold rounded-lg hover:bg-blue-50 transition">
                 Comprar ahora
@@ -429,12 +429,12 @@ export default function StorePage() {
             <div className="bg-gradient-to-br from-red-600 to-red-800 rounded-xl p-8 md:p-12 text-white shadow-lg hover:shadow-xl transition">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="text-2xl md:text-3xl font-bold mb-2">Devoluciones Fáciles</h3>
-                  <p className="text-red-100">
+                  <h3 className="text-2xl md:text-3xl font-bold mb-2 text-white">Devoluciones Fáciles</h3>
+                  <p className="text-white">
                     30 días para devolver sin preguntas
                   </p>
                 </div>
-                <span className="text-5xl">↩️</span>
+                <RotateCcw size={40} className="flex-shrink-0" />
               </div>
               <button className="mt-4 inline-flex items-center gap-2 bg-white text-red-600 px-6 py-2 font-semibold rounded-lg hover:bg-red-50 transition">
                 Más información
@@ -442,27 +442,6 @@ export default function StorePage() {
               </button>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Newsletter Section */}
-      <section className="bg-black text-white py-16">
-        <div className="max-w-2xl mx-auto px-4 md:px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Recibe Ofertas Exclusivas</h2>
-          <p className="text-gray-300 mb-8">
-            Suscríbete a nuestro newsletter y obtén un 10% de descuento en tu próxima compra
-          </p>
-          <form className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="email"
-              placeholder="tu@email.com"
-              className="flex-1 px-4 py-3 bg-gray-900 text-white placeholder-gray-500 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
-              required
-            />
-            <button className="px-8 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition whitespace-nowrap">
-              Suscribir
-            </button>
-          </form>
         </div>
       </section>
 
