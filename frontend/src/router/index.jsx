@@ -10,6 +10,7 @@ import MisPedidosPage from '../pages/client/MisPedidosPage';
 import DetalleOrdenClientePage from '../pages/client/DetalleOrdenClientePage';
 import DashboardPage from '../pages/admin/DashboardPage';
 import AdminLayout from '../components/shared/AdminLayout';
+import PublicLayout from '../components/shared/PublicLayout';
 import CategoriasPage from '../pages/admin/CategoriasPage';
 import SubCategoriasPage from '../pages/admin/SubcategoriasPage';
 import ColoresPage from '../pages/admin/ColoresPage';
@@ -76,22 +77,19 @@ const router = createBrowserRouter([
   },
   {
     path: '/cliente',
+    element: (
+      <ProtectedRoute>
+        <PublicLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: 'pedidos',
-        element: (
-          <ProtectedRoute>
-            <MisPedidosPage />
-          </ProtectedRoute>
-        ),
+        element: <MisPedidosPage />,
       },
       {
         path: 'pedidos/:id',
-        element: (
-          <ProtectedRoute>
-            <DetalleOrdenClientePage />
-          </ProtectedRoute>
-        ),
+        element: <DetalleOrdenClientePage />,
       },
     ],
   },

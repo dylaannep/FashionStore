@@ -196,7 +196,14 @@ export default function Navbar() {
           {/* Login / User Menu */}
           <div className="hidden md:flex items-center gap-2">
             {isAuthenticated ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4">
+                <Link
+                  to="/cliente/pedidos"
+                  className="text-sm font-medium text-gray-900 hover:text-red-600 transition"
+                  title="Ver mis pedidos"
+                >
+                  Mis Pedidos
+                </Link>
                 <span className="text-sm font-medium text-gray-900">{user?.nombre || 'Usuario'}</span>
                 <button
                   onClick={handleLogout}
@@ -319,6 +326,13 @@ export default function Navbar() {
                   <div className="px-3 py-2 bg-gray-50 rounded-lg">
                     <p className="text-sm font-medium text-gray-900">{user?.nombre || 'Usuario'}</p>
                   </div>
+                  <Link
+                    to="/cliente/pedidos"
+                    className="flex items-center justify-center gap-2 py-2 px-3 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition text-sm font-medium"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    📋 Mis Pedidos
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="flex items-center justify-center gap-2 py-2 px-3 text-red-600 hover:bg-red-50 rounded-lg transition text-sm font-medium"
