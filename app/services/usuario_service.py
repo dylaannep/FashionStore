@@ -11,7 +11,7 @@ import re
 class UsuarioService:
     @staticmethod
     def get_all():
-        return Usuario.query.filter_by(activo=True).all()
+        return Usuario.query.all()
 
     @staticmethod
     def get_by_id(id_usuario):

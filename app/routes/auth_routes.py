@@ -21,8 +21,11 @@ def login():
         func.lower(Usuario.email) == email
     ).first()
 
-    if not usuario or not usuario.activo:
+    if not usuario:
         return jsonify({'error': 'Credenciales inválidas.'}), 401
+
+    if not usuario.activo:
+        return jsonify({'error': 'Este usuario ha sido inactivado. Por favor, contacta con soporte.', 'reason': 'user_inactive'}), 401
 
     if not usuario.check_password(password):
         return jsonify({'error': 'Credenciales inválidas.'}), 401

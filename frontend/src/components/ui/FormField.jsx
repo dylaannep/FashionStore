@@ -2,8 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import {
   Input,
-  Select,
-  Option,
   Textarea,
   Typography,
 } from "@material-tailwind/react";
@@ -25,19 +23,18 @@ const FormField = ({
     switch (type) {
       case "select":
         return (
-          <Select
-            value={value}
-            onChange={(val) => onChange({ target: { value: val } })}
-            labelProps={{ className: "hidden" }}
-            className="w-full"
+          <select
+            value={value || ''}
+            onChange={onChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <Option value="">Seleccionar...</Option>
-            {options.map((option) => (
-              <Option key={option.value} value={option.value}>
+            <option value="">Seleccionar...</option>
+            {options && options.map((option) => (
+              <option key={option.value} value={option.value}>
                 {option.label}
-              </Option>
+              </option>
             ))}
-          </Select>
+          </select>
         );
       case "textarea":
         return (

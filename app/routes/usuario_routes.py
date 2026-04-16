@@ -23,7 +23,7 @@ def get_usuario(id):
 def create_usuario():
     try:
         usuario = UsuarioService.create(request.json)
-        return jsonify(usuario), 201
+        return jsonify(usuario.to_dict()), 201
     except ValueError as ve:
         return jsonify({'error': str(ve)}), 400
     except IntegrityError:
@@ -38,7 +38,7 @@ def update_usuario(id):
         usuario = UsuarioService.update(id, request.json)
         if not usuario:
             return jsonify({'error': 'Usuario no encontrado'}), 404
-        return jsonify(usuario), 200
+        return jsonify(usuario.to_dict()), 200
     except ValueError as ve:
         return jsonify({'error': str(ve)}), 400
     except IntegrityError:
