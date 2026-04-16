@@ -15,15 +15,18 @@ MAX_FILE_SIZE_MB = 5
 class ProductoVarianteService:
     @staticmethod
     def get_all():
-        return ProductoVariante.query.all()
+        from sqlalchemy.orm import joinedload
+        return ProductoVariante.query.options(joinedload(ProductoVariante.inventario)).all()
 
     @staticmethod
     def get_by_id(id_producto_variante):
-        return ProductoVariante.query.get(id_producto_variante)
+        from sqlalchemy.orm import joinedload
+        return ProductoVariante.query.options(joinedload(ProductoVariante.inventario)).get(id_producto_variante)
     
     @staticmethod
     def get_by_producto(id_producto):
-        return ProductoVariante.query.filter_by(id_producto=id_producto).all()
+        from sqlalchemy.orm import joinedload
+        return ProductoVariante.query.options(joinedload(ProductoVariante.inventario)).filter_by(id_producto=id_producto).all()
 
     @staticmethod
     def create(payload: dict):

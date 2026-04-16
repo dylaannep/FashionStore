@@ -128,6 +128,7 @@ export default function ProductFilters({ categorias, subcategorias, colores, tal
       </div>
 
       {/* Categoría */}
+      {categorias.length > 0 && (
       <div className="mb-6 border-b border-gray-200 pb-4">
         <button
           onClick={() => toggleFilter('categoria')}
@@ -169,6 +170,7 @@ export default function ProductFilters({ categorias, subcategorias, colores, tal
           </div>
         )}
       </div>
+      )}
 
       {/* Subcategoría */}
       <div className="mb-6 border-b border-gray-200 pb-4">

@@ -46,14 +46,23 @@ export default function CategoryPage() {
         tallasService.getAll(),
       ]);
 
-      setCategorias(catRes.data);
-      setSubcategorias(subRes.data);
+      // Filtrar solo categorías activas
+      const categoriasActivas = catRes.data.filter((c) => c.activo === true || c.activo === 1);
+      setCategorias(categoriasActivas);
+      
+      // Filtrar solo subcategorías activas
+      const subcategoriasActivas = subRes.data.filter((s) => s.activo === true || s.activo === 1);
+      setSubcategorias(subcategoriasActivas);
+      
       setColores(colRes.data);
       setTallas(talRes.data);
 
-      // Set category
+      // Set category by ID
       if (id) {
-        const cat = catRes.data.find((c) => c.id === parseInt(id));
+        const cat = categoriasActivas.find((c) => {
+          const catId = c.id_categoria || c.id;
+          return catId === parseInt(id);
+        });
         setCategory(cat);
       }
 
@@ -61,9 +70,9 @@ export default function CategoryPage() {
       const productosActivos = prodRes.data.filter((p) => p.activo === true || p.activo === 1);
       setProductos(productosActivos);
 
-      // Filter only active variants with stock
+      // Filter only active variants (incluyendo las sin stock, para mostrar como agotadas)
       const variantesActivas = varRes.data.filter(
-        (v) => (v.activo === true || v.activo === 1) && v.stock > 0
+        (v) => (v.activo === true || v.activo === 1)
       );
       setVariantes(variantesActivas);
     } catch (error) {
@@ -74,21 +83,32 @@ export default function CategoryPage() {
   };
 
   const aplicarFiltros = (productosActuales) => {
+    const categoriaActualId = parseInt(id);
+    
     return productosActuales.filter((producto) => {
       const prodId = producto.id_producto || producto.id;
       const subCatId = producto.id_subcategoria || producto.subcategoria_id;
       
-      // Filter por categoría
-      if (filtros.categoria && filtros.categoria !== parseInt(id)) {
+      // PRIMERO: Filtrar por categoría actual (OBLIGATORIO)
+      // Buscar la subcategoría del producto para verificar su categoría
+      const subCatDelProd = subcategorias.find(s => {
+        const sId = s.id_subcategoria || s.id;
+        return sId === subCatId;
+      });
+      
+      if (!subCatDelProd) return false;
+      
+      const catIdDelProd = subCatDelProd.id_categoria || subCatDelProd.categoria_id;
+      if (catIdDelProd !== categoriaActualId) {
         return false;
       }
 
-      // Filter por subcategoría
+      // SEGUNDO: Filtrar por subcategoría si está seleccionada
       if (filtros.subcategoria && subCatId !== filtros.subcategoria) {
         return false;
       }
 
-      // Filter por talla y color (via variantes)
+      // TERCERO: Filtrar por talla y color (via variantes)
       const variantesDelProducto = variantes.filter((v) => {
         const vProdId = v.id_producto || v.producto_id;
         return vProdId === prodId;
@@ -112,7 +132,7 @@ export default function CategoryPage() {
         if (!tieneColor) return false;
       }
 
-      // Filter por precio
+      // CUARTO: Filtrar por precio
       if (variantesDelProducto.length > 0) {
         const precios = variantesDelProducto.map((v) => v.precio || 0);
         const precioMin = Math.min(...precios);
@@ -220,8 +240,11 @@ export default function CategoryPage() {
           {/* Filters Sidebar */}
           <div className="lg:w-64 flex-shrink-0">
             <ProductFilters
-              categorias={categorias}
-              subcategorias={subcategorias}
+              categorias={[]} // No mostrar categorías en CategoryPage
+              subcategorias={subcategorias.filter((s) => {
+                const catId = s.id_categoria || s.categoria_id;
+                return catId === parseInt(id);
+              })}
               colores={colores}
               tallas={tallas}
               onFilterChange={setFiltros}
@@ -291,6 +314,12 @@ export default function CategoryPage() {
                 {productosOrdenados.map((producto) => {
                   const prodId = producto.id_producto || producto.id;
                   const variantesProducto = obtenerVariantesDelProducto(prodId);
+                  
+                  // Solo mostrar producto si tiene variantes activas con stock
+                  if (variantesProducto.length === 0) {
+                    return null;
+                  }
+                  
                   const variantePrincipal = variantesProducto[0];
                   return (
                     <ProductoCard

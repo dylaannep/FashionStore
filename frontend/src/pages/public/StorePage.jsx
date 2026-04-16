@@ -75,8 +75,8 @@ export default function StorePage() {
 
       setProductos(productosActivos);
       
-      // Filter solo variantes activas con inventario disponible
-      const variantesActivas = varRes.data.filter((v) => (v.activo === true || v.activo === 1) && v.stock > 0);
+      // Filter solo variantes activas (incluyendo las sin stock, para mostrar como agotadas)
+      const variantesActivas = varRes.data.filter((v) => (v.activo === true || v.activo === 1));
       setVariantes(variantesActivas);
       
       // Filtrar solo categorías activas
@@ -383,6 +383,12 @@ export default function StorePage() {
                 {productosOrdenados.map((producto) => {
                   const prodId = producto.id_producto || producto.id;
                   const variantesProducto = obtenerVariantesDelProducto(prodId);
+                  
+                  // Solo mostrar producto si tiene variantes activas con stock
+                  if (variantesProducto.length === 0) {
+                    return null;
+                  }
+                  
                   const variantePrincipal = variantesProducto[0];
                   return (
                     <ProductoCard

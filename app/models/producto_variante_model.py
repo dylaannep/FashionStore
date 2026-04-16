@@ -36,6 +36,11 @@ class ProductoVariante(db.Model):
         # Si la variante no tiene imagen, usar la del producto
         imagen_final = self.imagen if self.imagen else (self.producto.imagen if self.producto else None)
         
+        # Obtener stock del inventario
+        stock = 0
+        if self.inventario:
+            stock = self.inventario.stock
+        
         return {
             'id_producto_variante': self.id_producto_variante,
             'id_producto': self.id_producto,
@@ -46,5 +51,6 @@ class ProductoVariante(db.Model):
             'imagen': imagen_final,  # Imagen de variante o del producto
             'imagen_propia': self.imagen,  # Imagen específica de la variante (puede ser null)
             'activo': self.activo,
+            'stock': stock,  # Stock del inventario
             'fecha_creacion': self.fecha_creacion.isoformat() if self.fecha_creacion else None
         }
