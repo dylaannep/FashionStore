@@ -2,6 +2,9 @@ import React from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import LoginPage from '../pages/LoginPage';
+import StorePage from '../pages/public/StorePage';
+import ProductoDetallePage from '../pages/public/ProductoDetallePage';
+import CategoryPage from '../pages/public/CategoryPage';
 import DashboardPage from '../pages/admin/DashboardPage';
 import AdminLayout from '../components/shared/AdminLayout';
 import CategoriasPage from '../pages/admin/CategoriasPage';
@@ -41,19 +44,27 @@ const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: <div>Página principal de la tienda</div>,
+    element: <StorePage />,
   },
   {
     path: '/productos',
-    element: <div>Listado de productos</div>,
+    element: <StorePage />,
   },
   {
-    path: '/categorias/:id',
-    element: <div>Detalle de categoría</div>,
+    path: '/categoria/:id',
+    element: <CategoryPage />,
   },
   {
     path: '/producto/:id',
-    element: <div>Detalle de producto</div>,
+    element: <ProductoDetallePage />,
+  },
+  {
+    path: '/nuevos',
+    element: <StorePage />,
+  },
+  {
+    path: '/ofertas',
+    element: <StorePage />,
   },
   {
     path: '/admin',

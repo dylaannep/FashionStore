@@ -17,3 +17,242 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Eliminación de clases hover y fondo inconsistentes */
 /* Aseguramos que las tablas y modales usen estilos de Material Tailwind */
+
+/* Custom animations and styles */
+
+/* Blob animation delay utilities */
+.animation-delay-2000 {
+  animation-delay: 2000ms;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4000ms;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Utility classes for components */
+.input-focus {
+  outline: none;
+  ring: 2px;
+  ring-color: rgb(220, 38, 38);
+  border-color: transparent;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  background-color: rgb(220, 38, 38);
+  color: white;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  transform: scale(1);
+}
+
+.btn-primary:hover {
+  background-color: rgb(185, 28, 28);
+  transform: scale(1.05);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  background-color: rgb(243, 244, 246);
+  color: rgb(17, 24, 39);
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: rgb(229, 231, 235);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid rgb(17, 24, 39);
+  color: rgb(17, 24, 39);
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-outline:hover {
+  background-color: rgb(17, 24, 39);
+  color: white;
+}
+
+.card-base {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s;
+}
+
+.card-base:hover {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.text-gradient {
+  background: linear-gradient(to right, rgb(220, 38, 38), rgb(153, 27, 27));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hero gradient text */
+.hero-gradient {
+  background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Smooth transitions for hover effects */
+* {
+  transition-property: colors;
+  transition-duration: 200ms;
+}
+
+/* Link styles */
+a {
+  cursor: pointer;
+}
+
+/* Focus visible for accessibility */
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(220, 38, 38), 0 0 0 4px rgba(220, 38, 38, 0.1);
+}
+
+/* Loading skeleton animation */
+@keyframes skeleton-loading {
+  0% {
+    background-color: #f3f4f6;
+  }
+  50% {
+    background-color: #e5e7eb;
+  }
+  100% {
+    background-color: #f3f4f6;
+  }
+}
+
+.skeleton {
+  animation: skeleton-loading 1.5s infinite;
+}
+
+/* Price badge animation */
+@keyframes price-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.price-badge {
+  animation: price-pulse 2s ease-in-out infinite;
+}
+
+/* Form input styles */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea,
+select {
+  transition: all 200ms;
+}
+
+/* Badge styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-primary {
+  background-color: rgb(254, 226, 226);
+  color: rgb(153, 27, 27);
+}
+
+.badge-success {
+  background-color: rgb(220, 252, 231);
+  color: rgb(20, 83, 45);
+}
+
+.badge-warning {
+  background-color: rgb(254, 243, 199);
+  color: rgb(92, 51, 0);
+}
+
+.badge-info {
+  background-color: rgb(206, 250, 254);
+  color: rgb(0, 77, 97);
+}
+
+/* Glass morphism effect */
+.glass {
+  backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Smooth page transitions */
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: pageEnter 0.3s ease-out;
+}
